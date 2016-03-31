@@ -2,7 +2,7 @@
 
   (general
     (links 114)
-    (no_connects 111)
+    (no_connects 114)
     (area 0 0 0 0)
     (thickness 1.5)
     (drawings 0)
@@ -195,7 +195,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD3171)
-    (at 134.195001 98.985)
+    (at 182.845001 66.185)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56EC2B13)
@@ -224,7 +224,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD3177)
-    (at 175.305001 92.165)
+    (at 182.845001 60.285)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD2265)
@@ -253,7 +253,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD317D)
-    (at 165.155001 100.335)
+    (at 175.985001 69.975)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD221A)
@@ -282,7 +282,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD3183)
-    (at 184.955001 77.875)
+    (at 191.445001 63.445)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD21DD)
@@ -311,7 +311,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD3189)
-    (at 169.605001 94.435)
+    (at 180.135001 72.085)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD21A0)
@@ -340,7 +340,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD318F)
-    (at 180.805001 83.965)
+    (at 195.595001 57.545)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD20F9)
@@ -369,7 +369,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD3195)
-    (at 161.005001 100.335)
+    (at 191.445001 57.545)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD20AC)
@@ -398,7 +398,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD319B)
-    (at 175.305001 86.265)
+    (at 175.985001 75.875)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD69BF)
@@ -427,7 +427,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD31A1)
-    (at 165.455001 94.435)
+    (at 186.995001 66.185)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FD6A28)
@@ -456,7 +456,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD31A7)
-    (at 180.805001 78.065)
+    (at 166.575001 84.435)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FFE78E)
@@ -485,7 +485,7 @@
   )
 
   (module Capacitors_SMD:C_0603_HandSoldering (layer F.Cu) (tedit 541A9B4D) (tstamp 56FD31AD)
-    (at 184.695001 71.975)
+    (at 161.615001 86.705)
     (descr "Capacitor SMD 0603, hand soldering")
     (tags "capacitor 0603")
     (path /56FFE717)
@@ -514,7 +514,7 @@
   )
 
   (module Resistors_SMD:R_0603_HandSoldering (layer F.Cu) (tedit 5418A00F) (tstamp 56FD31B3)
-    (at 156.705001 100.335)
+    (at 195.885001 42.395)
     (descr "Resistor SMD 0603, hand soldering")
     (tags "resistor 0603")
     (path /56FD9CD1)
@@ -543,7 +543,7 @@
   )
 
   (module Resistors_SMD:R_0603_HandSoldering (layer F.Cu) (tedit 5418A00F) (tstamp 56FD31B9)
-    (at 161.155001 94.435)
+    (at 154.655001 68.695)
     (descr "Resistor SMD 0603, hand soldering")
     (tags "resistor 0603")
     (path /56EC30CC)
@@ -572,7 +572,7 @@
   )
 
   (module Resistors_SMD:R_0603_HandSoldering (layer F.Cu) (tedit 5418A00F) (tstamp 56FD31BF)
-    (at 156.705001 94.435)
+    (at 157.315001 86.705)
     (descr "Resistor SMD 0603, hand soldering")
     (tags "resistor 0603")
     (path /56EC3212)
@@ -601,7 +601,7 @@
   )
 
   (module Resistors_SMD:R_0603_HandSoldering (layer F.Cu) (tedit 5418A00F) (tstamp 56FD31C5)
-    (at 184.845001 66.075)
+    (at 187.145001 60.285)
     (descr "Resistor SMD 0603, hand soldering")
     (tags "resistor 0603")
     (path /56EC3696)
@@ -630,7 +630,7 @@
   )
 
   (module Resistors_SMD:R_0603_HandSoldering (layer F.Cu) (tedit 5418A00F) (tstamp 56FD31CB)
-    (at 184.475001 60.175)
+    (at 169.735001 78.535)
     (descr "Resistor SMD 0603, hand soldering")
     (tags "resistor 0603")
     (path /56EC0DC8)
@@ -659,7 +659,7 @@
   )
 
   (module Buzzers_Beepers:Buzzer_12x9.5RM7.6 (layer F.Cu) (tedit 544E361A) (tstamp 56FD3284)
-    (at 125.645141 93.816)
+    (at 156.235141 48.496)
     (descr "Generic Buzzer, D12mm height 9.5mm with RM7.6mm")
     (tags buzzer)
     (path /56FDA9B3)
@@ -686,7 +686,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-223 (layer F.Cu) (tedit 0) (tstamp 56FD328C)
-    (at 150.581001 89.867001)
+    (at 175.131001 53.937001)
     (descr "module CMS SOT223 4 pins")
     (tags "CMS SOT")
     (path /5700E1E0)
@@ -721,7 +721,7 @@
   )
 
   (module Housings_QFP:LQFP-48_7x7mm_Pitch0.5mm (layer F.Cu) (tedit 54130A77) (tstamp 56FD32C0)
-    (at 144.665953 78.045)
+    (at 133.445953 82.235)
     (descr "48 LEAD LQFP 7x7mm (see MICREL LQFP7x7-48LD-PL-1.pdf)")
     (tags "QFP 0.5")
     (path /56FE64E8)
@@ -849,7 +849,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23_Handsoldering (layer F.Cu) (tedit 54E9291B) (tstamp 56FD32C7)
-    (at 162.802619 70.285)
+    (at 160.132619 62.405)
     (descr "SOT-23, Handsoldering")
     (tags SOT-23)
     (path /56FDA1B0)
@@ -878,7 +878,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23_Handsoldering (layer F.Cu) (tedit 54E9291B) (tstamp 56FD32CE)
-    (at 177.958809 62.085)
+    (at 167.008809 55.575)
     (descr "SOT-23, Handsoldering")
     (tags SOT-23)
     (path /56EC30C6)
@@ -907,7 +907,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23_Handsoldering (layer F.Cu) (tedit 54E9291B) (tstamp 56FD32D5)
-    (at 155.618809 75.855)
+    (at 179.958809 44.305)
     (descr "SOT-23, Handsoldering")
     (tags SOT-23)
     (path /56EC320C)
@@ -936,7 +936,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23_Handsoldering (layer F.Cu) (tedit 54E9291B) (tstamp 56FD32DC)
-    (at 168.918809 70.285)
+    (at 144.398809 80.045)
     (descr "SOT-23, Handsoldering")
     (tags SOT-23)
     (path /56EC3690)
@@ -965,7 +965,7 @@
   )
 
   (module TO_SOT_Packages_SMD:SOT-23_Handsoldering (layer F.Cu) (tedit 54E9291B) (tstamp 56FD32E3)
-    (at 140.778809 98.155)
+    (at 171.368809 44.305)
     (descr "SOT-23, Handsoldering")
     (tags SOT-23)
     (path /56EC0810)
@@ -994,7 +994,7 @@
   )
 
   (module Buttons_Switches_ThroughHole:SW_PUSH_SMALL (layer F.Cu) (tedit 0) (tstamp 56FD32EB)
-    (at 177.9185 70.955001)
+    (at 166.6585 64.445001)
     (path /56FDC6AD)
     (fp_text reference SW1 (at 0 -0.762) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1018,7 +1018,7 @@
   )
 
   (module Buttons_Switches_ThroughHole:SW_PUSH_SMALL (layer F.Cu) (tedit 0) (tstamp 56FD32F3)
-    (at 168.5285 87.325001)
+    (at 188.9585 43.455001)
     (path /56FDC81C)
     (fp_text reference SW2 (at 0 -0.762) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1042,7 +1042,7 @@
   )
 
   (module Buttons_Switches_ThroughHole:SW_PUSH_SMALL (layer F.Cu) (tedit 0) (tstamp 56FD32FB)
-    (at 174.0285 79.155001)
+    (at 183.6685 53.175001)
     (path /56FDC97D)
     (fp_text reference SW3 (at 0 -0.762) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1066,7 +1066,7 @@
   )
 
   (module Buttons_Switches_ThroughHole:SW_PUSH_SMALL (layer F.Cu) (tedit 0) (tstamp 56FD3303)
-    (at 149.7785 98.795001)
+    (at 176.0685 62.865001)
     (path /56FDC9F8)
     (fp_text reference SW4 (at 0 -0.762) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1090,7 +1090,7 @@
   )
 
   (module Buttons_Switches_ThroughHole:SW_PUSH_SMALL (layer F.Cu) (tedit 0) (tstamp 56FD330B)
-    (at 159.1185 87.325001)
+    (at 162.8085 72.615001)
     (path /56FDDD96)
     (fp_text reference SW5 (at 0 -0.762) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1114,7 +1114,7 @@
   )
 
   (module Buttons_Switches_ThroughHole:SW_PUSH_SMALL (layer F.Cu) (tedit 0) (tstamp 56FD3313)
-    (at 164.6185 79.155001)
+    (at 153.3985 79.195001)
     (path /56FDDE39)
     (fp_text reference SW6 (at 0 -0.762) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1138,7 +1138,7 @@
   )
 
   (module Socket_Strips:Socket_Strip_Straight_1x05 (layer F.Cu) (tedit 0) (tstamp 56FD331C)
-    (at 103.533571 99.115)
+    (at 129.993571 73.135)
     (descr "Through hole socket strip")
     (tags "socket strip")
     (path /56FE3EA4)
@@ -1177,7 +1177,7 @@
   )
 
   (module Socket_Strips:Socket_Strip_Straight_1x08 (layer F.Cu) (tedit 0) (tstamp 56FD3328)
-    (at 103.533571 63.375)
+    (at 111.153571 45.595)
     (descr "Through hole socket strip")
     (tags "socket strip")
     (path /56EC1FFA)
@@ -1222,7 +1222,7 @@
   )
 
   (module Socket_Strips:Socket_Strip_Straight_1x03 (layer F.Cu) (tedit 54E9F429) (tstamp 56FD332F)
-    (at 139.683571 91.245)
+    (at 145.363571 73.135)
     (descr "Through hole socket strip")
     (tags "socket strip")
     (path /56FD4FA4)
@@ -1257,7 +1257,7 @@
   )
 
   (module Socket_Strips:Socket_Strip_Straight_1x04 (layer F.Cu) (tedit 0) (tstamp 56FD3337)
-    (at 164.040714 63.375)
+    (at 148.690714 63.695)
     (descr "Through hole socket strip")
     (tags "socket strip")
     (path /56FD40B9)
@@ -1294,7 +1294,7 @@
   )
 
   (module Crystals:Crystal_Watch (layer F.Cu) (tedit 0) (tstamp 56FD3360)
-    (at 134.300001 85.525)
+    (at 164.890001 40.205)
     (path /56FD674B)
     (fp_text reference XTAL1 (at -0.889 5.969 90) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
@@ -1320,7 +1320,7 @@
   )
 
   (module Connect:BARREL_JACK (layer F.Cu) (tedit 0) (tstamp 56FD33FC)
-    (at 149.915621 64.27448)
+    (at 115.725621 68.46448)
     (descr "DC Barrel Jack")
     (tags "Power Jack")
     (path /570022F0)
@@ -1344,7 +1344,7 @@
   )
 
   (module Connect:BARREL_JACK (layer F.Cu) (tedit 0) (tstamp 56FD3403)
-    (at 126.945621 78.04448)
+    (at 134.565621 60.26448)
     (descr "DC Barrel Jack")
     (tags "Power Jack")
     (path /570033E6)
@@ -1368,7 +1368,7 @@
   )
 
   (module Connect:BARREL_JACK (layer F.Cu) (tedit 0) (tstamp 56FD340A)
-    (at 108.105621 86.24448)
+    (at 115.725621 82.23448)
     (descr "DC Barrel Jack")
     (tags "Power Jack")
     (path /57003936)
@@ -1392,7 +1392,7 @@
   )
 
   (module Connect:BARREL_JACK (layer F.Cu) (tedit 0) (tstamp 56FD3411)
-    (at 131.075621 64.27448)
+    (at 138.695621 46.49448)
     (descr "DC Barrel Jack")
     (tags "Power Jack")
     (path /57003AA0)
@@ -1416,7 +1416,7 @@
   )
 
   (module Connect:BARREL_JACK (layer F.Cu) (tedit 0) (tstamp 56FD3418)
-    (at 108.105621 72.47448)
+    (at 115.725621 54.69448)
     (descr "DC Barrel Jack")
     (tags "Power Jack")
     (path /57003D48)
@@ -1440,7 +1440,7 @@
   )
 
   (module PCB:Hole3_5_out6mm (layer F.Cu) (tedit 551FD511) (tstamp 56FD3D27)
-    (at 0 0)
+    (at 151.89 86.77311)
     (path /5700EC49)
     (fp_text reference HOLE1 (at 0 3.2004) (layer F.SilkS) hide
       (effects (font (size 0.127 0.127) (thickness 0.00254)))
@@ -1453,7 +1453,7 @@
   )
 
   (module PCB:Hole3_5_out6mm (layer F.Cu) (tedit 551FD511) (tstamp 56FD3D2C)
-    (at 0 0)
+    (at 170.71 72.02311)
     (path /5700F195)
     (fp_text reference HOLE2 (at 0 3.2004) (layer F.SilkS) hide
       (effects (font (size 0.127 0.127) (thickness 0.00254)))
@@ -1466,7 +1466,7 @@
   )
 
   (module PCB:Hole3_5_out6mm (layer F.Cu) (tedit 551FD511) (tstamp 56FD3D31)
-    (at 0 0)
+    (at 161.3 80.19311)
     (path /5700F547)
     (fp_text reference HOLE3 (at 0 3.2004) (layer F.SilkS) hide
       (effects (font (size 0.127 0.127) (thickness 0.00254)))
@@ -1479,7 +1479,7 @@
   )
 
   (module PCB:Hole3_5_out6mm (layer F.Cu) (tedit 551FD511) (tstamp 56FD3D36)
-    (at 0 0)
+    (at 191.57 51.03311)
     (path /5700F5DE)
     (fp_text reference HOLE4 (at 0 3.2004) (layer F.SilkS) hide
       (effects (font (size 0.127 0.127) (thickness 0.00254)))
