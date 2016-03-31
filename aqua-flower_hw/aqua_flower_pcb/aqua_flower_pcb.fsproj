@@ -12,6 +12,7 @@
 		<Pcb>
 			<File path=".\aqua-flower.fsx" isopened="1"/>
 		</Pcb>
+		<Documents path="D:\Projects\aqua-flower\aqua-flower_hw\aqua_flower_pcb\"/>
 		<Import>
 			<Specctra>
 			<Path name="D:\Projects\aqua-flower\aqua-flower_hw\aqua_flower_pcb\aqua-flower.dsn"/>
