@@ -1,4 +1,4 @@
-update=31/03/2016 17:30:52
+update=31/03/2016 18:05:07
 version=1
 last_client=kicad
 [pcbnew]
@@ -26,18 +26,19 @@ version=1
 version=1
 LibDir=
 [eeschema/libraries]
-LibName1=D:/Libs/Kicad/Connectors_kl
-LibName2=D:/Libs/Kicad/display_kl
-LibName3=D:/Libs/Kicad/Interface_kl
-LibName4=D:/Libs/Kicad/modules
-LibName5=D:/Libs/Kicad/OpAmp_kl
-LibName6=D:/Libs/Kicad/pcb_details
-LibName7=D:/Libs/Kicad/power
-LibName8=D:/Libs/Kicad/Power_kl
-LibName9=D:/Libs/Kicad/st_kl
-LibName10=D:/Libs/Kicad/Switches
-LibName11=D:/Libs/Kicad/Tittar_kl
-LibName12=D:/Libs/Kicad/Transistors_kl
+LibName1=aqua-flower-rescue
+LibName2=D:/Libs/Kicad/Connectors_kl
+LibName3=D:/Libs/Kicad/display_kl
+LibName4=D:/Libs/Kicad/Interface_kl
+LibName5=D:/Libs/Kicad/modules
+LibName6=D:/Libs/Kicad/OpAmp_kl
+LibName7=D:/Libs/Kicad/pcb_details
+LibName8=D:/Libs/Kicad/power
+LibName9=D:/Libs/Kicad/Power_kl
+LibName10=D:/Libs/Kicad/st_kl
+LibName11=D:/Libs/Kicad/Switches
+LibName12=D:/Libs/Kicad/Tittar_kl
+LibName13=D:/Libs/Kicad/Transistors_kl
 [cvpcb]
 version=1
 NetIExt=net
