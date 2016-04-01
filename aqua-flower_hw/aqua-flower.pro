@@ -1,4 +1,4 @@
-update=31/03/2016 18:19:27
+update=01/04/2016 13:38:28
 version=1
 last_client=kicad
 [pcbnew]
@@ -39,6 +39,7 @@ LibName10=D:/Libs/Kicad/st_kl
 LibName11=D:/Libs/Kicad/Switches
 LibName12=D:/Libs/Kicad/Tittar_kl
 LibName13=D:/Libs/Kicad/Transistors_kl
+LibName14=D:/Libs/Kicad/memory
 [cvpcb]
 version=1
 NetIExt=net
