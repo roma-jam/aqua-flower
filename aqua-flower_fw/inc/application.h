@@ -12,7 +12,8 @@
 #include <kl_lib_f100.h>
 #include <string.h>
 
-class App_t {
+class App_t
+{
 public:
     Thread *PThd;
     void Init();
