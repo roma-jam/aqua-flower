@@ -20,20 +20,44 @@
 #define LCD_TIM         TIM2
 
 #define LCD_BCKLT       10
-#define LCD_SCLK        13
-#define LCD_SDA         15
 #define LCD_XRES        11
-#define LCD_XCS         14
+#define LCD_XCS         12
+#define LCD_SCLK        13
+#define LCD_DC          14
+#define LCD_SDA         15
 
-#define LCD_WIDTH		96
-#define LCD_HEIGHT		65
+//#define LCD_WIDTH		96
+//#define LCD_HEIGHT		65
 
 #define LCD_STR_HEIGHT  8
 #define LCD_STR_WIDTH   16
 
+#define LCD_WIDTH 84
+#define LCD_HEIGHT 48
+
 // Data sizes
 //#define LCD_VIDEOBUF_SIZE       864     // = 96 * 9
 #define LCD_VIDEOBUF_SIZE         88     // =  80*9
+
+#define PCD8544_POWERDOWN 0x04
+#define PCD8544_ENTRYMODE 0x02
+#define PCD8544_EXTENDEDINSTRUCTION 0x01
+
+#define PCD8544_DISPLAYBLANK 0x0
+#define PCD8544_DISPLAYNORMAL 0x4
+#define PCD8544_DISPLAYALLON 0x1
+#define PCD8544_DISPLAYINVERTED 0x5
+
+// H = 0
+#define PCD8544_FUNCTIONSET 0x20
+#define PCD8544_DISPLAYCONTROL 0x08
+#define PCD8544_SETYADDR 0x40
+#define PCD8544_SETXADDR 0x80
+
+// H = 1
+#define PCD8544_SETTEMP 0x04
+#define PCD8544_SETBIAS 0x10
+#define PCD8544_SETVOP 0x80
 
 enum PseudoGraph_t {
     CornerTopLeftDouble = 0x99,
@@ -67,10 +91,13 @@ private:
         PinSetupOut(LCD_GPIO, LCD_XCS, omPushPull, ps50MHz);
         PinSetupOut(LCD_GPIO, LCD_SCLK, omPushPull, ps50MHz);
         PinSetupOut(LCD_GPIO, LCD_SDA, omPushPull, ps50MHz);
+        PinSetupOut(LCD_GPIO, LCD_DC, omPushPull, ps50MHz);
     }
 
     void XRES_Hi(void) { PinSet(LCD_GPIO, LCD_XRES);    }
     void XRES_Lo(void) { PinClear(LCD_GPIO, LCD_XRES);  }
+    void DataMode(void){ PinSet(LCD_GPIO, LCD_DC);      }
+    void CmdMode(void) { PinClear(LCD_GPIO, LCD_DC);    }
     void SCLK_Hi(void) { PinSet(LCD_GPIO, LCD_SCLK);    }
     void SCLK_Lo(void) { PinClear(LCD_GPIO, LCD_SCLK);  }
     void SDA_Hi (void) { PinSet(LCD_GPIO, LCD_SDA);     }

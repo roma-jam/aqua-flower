@@ -48,13 +48,12 @@ void Lcd_t::Task() {
     chThdSleepMilliseconds(12);
 }
 
-void Lcd_t::Init() {
+void Lcd_t::Init()
+{
     // ==== Backlight: Timer2 Ch3 ====
     // Setup pin
     PinSetupAlterFuncOutput(LCD_GPIO, LCD_BCKLT, omPushPull, ps50MHz);
-
-    // Remap Timer2 to PB10
-    AFIO->MAPR |= (2 << 8);
+    AFIO->MAPR |= (2 << 8); // Remap Timer2 to PB10
     // Setup timer2
     rccEnableAPB1(RCC_APB1ENR_TIM2EN, false);
 
@@ -71,33 +70,36 @@ void Lcd_t::Init() {
     // Configure LCD_XRES, LCD_XCS, LCD_SCLK & LCD_SDA as Push-Pull output
     InitGpios();
 
-    return;
-
     // ========================= Init LCD ======================================
-    SCLK_Lo();
-    XCS_Hi();
-    // Reset display
-    XRES_Lo();
-    chThdSleepMilliseconds(9);
-    XRES_Hi();
-    WriteCmd(0xAF);    // display ON
     // Reset display again
     XRES_Lo();
-    chThdSleepMilliseconds(7);
+    chThdSleepMilliseconds(500);
     XRES_Hi();
-    chThdSleepMilliseconds(7);
-    // Initial commands
-    WriteCmd(0xAF);    // display ON
-    WriteCmd(0xA4);    // Set normal display mode
-    WriteCmd(0x2F);    // Charge pump on
-    WriteCmd(0x40);    // Set start row address = 0
 
-//    WriteCmd(0xC8);    // mirror Y axis
-//    WriteCmd(0xA1);    // Mirror X axis
-    // Set x=0, y=0
-    WriteCmd(0xB0);    // Y axis initialization
-    WriteCmd(0x10);    // X axis initialisation1
-    WriteCmd(0x00);    // X axis initialisation2
+    WriteCmd(PCD8544_FUNCTIONSET | PCD8544_EXTENDEDINSTRUCTION);    // display ON
+    WriteCmd(PCD8544_SETBIAS | 0x04);
+    WriteCmd(PCD8544_SETVOP | 0x7F);
+    WriteCmd(PCD8544_FUNCTIONSET);
+    WriteCmd(PCD8544_DISPLAYCONTROL | PCD8544_DISPLAYNORMAL);
+
+//    SCLK_Lo();
+//    XCS_Hi();
+//    // Reset display
+//    XRES_Lo();
+//    chThdSleepMilliseconds(9);
+//    XRES_Hi();
+//    // Initial commands
+//    WriteCmd(0xAF);    // display ON
+//    WriteCmd(0xA4);    // Set normal display mode
+//    WriteCmd(0x2F);    // Charge pump on
+//    WriteCmd(0x40);    // Set start row address = 0
+//
+////    WriteCmd(0xC8);    // mirror Y axis
+////    WriteCmd(0xA1);    // Mirror X axis
+//    // Set x=0, y=0
+//    WriteCmd(0xB0);    // Y axis initialization
+//    WriteCmd(0x10);    // X axis initialisation1
+//    WriteCmd(0x00);    // X axis initialisation2
 
     Cls();             // clear LCD buffer
 
@@ -138,6 +140,8 @@ void Lcd_t::Init() {
 #endif
 
     chThdCreateStatic(waLcdThread, sizeof(waLcdThread), NORMALPRIO, (tfunc_t)LcdThread, NULL);
+
+    Backlight(80);
 }
 
 void Lcd_t::Shutdown(void) {
@@ -152,12 +156,8 @@ void Lcd_t::Shutdown(void) {
 }
 
 void Lcd_t::WriteCmd(uint8_t AByte) {
-    SCLK_Lo();
-    XCS_Lo();   // Select chip
-    // Send "Cmd" bit
-    SDA_Lo();
-    SCLK_Hi();
-    SCLK_Lo();
+    XCS_Lo();
+    CmdMode();
     // Send byte
     for(uint8_t i=0; i<8; i++) {
         if(AByte & 0x80) SDA_Hi();
@@ -170,12 +170,8 @@ void Lcd_t::WriteCmd(uint8_t AByte) {
 }
 
 void Lcd_t::WriteData(uint8_t AByte) {
-    SCLK_Lo();
-    XCS_Lo();   // Select chip
-    // Send "Data" bit
-    SDA_Hi();
-    SCLK_Hi();
-    SCLK_Lo();
+    XCS_Lo();
+    DataMode();
     // Send byte
     for(uint8_t i=0; i<8; i++) {
         if(AByte & 0x80) SDA_Hi();
