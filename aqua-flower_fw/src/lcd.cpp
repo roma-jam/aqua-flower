@@ -5,8 +5,6 @@
  *      Author: Roma Jam
  */
 
-
-
 #include "lcd.h"
 
 //#define ENABLE_DMAUSART_MODE
@@ -39,20 +37,21 @@ extern "C" {
 #endif
 
 void Lcd_t::Task() {
-    for (uint8_t i=0; i < LCD_VIDEOBUF_SIZE; i++) {
+
+//    for (uint16_t i = LCD_VIDEOBUF_SIZE; i > 0; i--)
+    for (uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
         WriteData(IBuf[i]);
-    }
-    WriteCmd(0xB0);    // Y axis initialization
-    WriteCmd(0x10);    // X axis initialisation1
-    WriteCmd(0x00);    // X axis initialisation2
-    chThdSleepMilliseconds(12);
+
+    WriteCmd(PCD8544_SETYADDR | 0x00);    // Y axis initialization
+    WriteCmd(PCD8544_SETXADDR | 0x00);    // X axis initialisation
+
+    chThdSleepMilliseconds(REFRESH_TIME_MS);
 }
 
 void Lcd_t::Init()
 {
+    InitGpios();
     // ==== Backlight: Timer2 Ch3 ====
-    // Setup pin
-    PinSetupAlterFuncOutput(LCD_GPIO, LCD_BCKLT, omPushPull, ps50MHz);
     AFIO->MAPR |= (2 << 8); // Remap Timer2 to PB10
     // Setup timer2
     rccEnableAPB1(RCC_APB1ENR_TIM2EN, false);
@@ -66,44 +65,39 @@ void Lcd_t::Init()
     LCD_TIM->CCER = 0x0100;   // Output3 enabled
     LCD_TIM->CCER |= (1 << 9);     // polarity inverted
 
-    // ==== GPIOs ====
-    // Configure LCD_XRES, LCD_XCS, LCD_SCLK & LCD_SDA as Push-Pull output
-    InitGpios();
+#ifdef LCD_SPI
+    rccEnableSPI2(FALSE);
+    LCD_SPI->CR1 = SPI_MODE;
+    LCD_SPI->CR2  = 0;
+    LCD_SPI->SR   = 0x02;
+    SPI_SetBaud(brDiv16); // Set baudrate: Fpclk/16 = 48 MHz/16 = 3 Mhz NOTE: max freq 5MHz
+    LCD_SPI->CR1 |=  SPI_CR1_SPE; // ENABLE
 
+#endif
+
+    Backlight(80);
+    RESET_Hi();
+    CS_Hi();
+    SCLK_Hi();
+    chThdSleepMilliseconds(9);
     // ========================= Init LCD ======================================
     // Reset display again
-    XRES_Lo();
-    chThdSleepMilliseconds(500);
-    XRES_Hi();
+    RESET_Lo();
+    chThdSleepMilliseconds(99);
+    RESET_Hi();
 
     WriteCmd(PCD8544_FUNCTIONSET | PCD8544_EXTENDEDINSTRUCTION);    // display ON
     WriteCmd(PCD8544_SETBIAS | 0x04);
-    WriteCmd(PCD8544_SETVOP | 0x7F);
+    WriteCmd(PCD8544_SETVOP | 0x31);
     WriteCmd(PCD8544_FUNCTIONSET);
     WriteCmd(PCD8544_DISPLAYCONTROL | PCD8544_DISPLAYNORMAL);
 
-//    SCLK_Lo();
-//    XCS_Hi();
-//    // Reset display
-//    XRES_Lo();
-//    chThdSleepMilliseconds(9);
-//    XRES_Hi();
-//    // Initial commands
-//    WriteCmd(0xAF);    // display ON
-//    WriteCmd(0xA4);    // Set normal display mode
-//    WriteCmd(0x2F);    // Charge pump on
-//    WriteCmd(0x40);    // Set start row address = 0
-//
-////    WriteCmd(0xC8);    // mirror Y axis
-////    WriteCmd(0xA1);    // Mirror X axis
-//    // Set x=0, y=0
-//    WriteCmd(0xB0);    // Y axis initialization
-//    WriteCmd(0x10);    // X axis initialisation1
-//    WriteCmd(0x00);    // X axis initialisation2
-
     Cls();             // clear LCD buffer
 
-    draw_mode = OVERWRITE;
+    for(uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
+        WriteData(0x00);
+
+//    draw_mode = OVERWRITE;
 
 // ====================== Switch to USART + DMA ============================
 #ifdef ENABLE_DMAUSART_MODE
@@ -136,56 +130,70 @@ void Lcd_t::Init()
 
 //    DMA_Cmd(DMA1_Channel2, ENABLE);          // Enable USARTy DMA TX Channel
 #else
-    for(int i=0; i < 864; i++) WriteData(0x00);
+    //for(int i=0; i < 864; i++) WriteData(0x00);
 #endif
 
     chThdCreateStatic(waLcdThread, sizeof(waLcdThread), NORMALPRIO, (tfunc_t)LcdThread, NULL);
-
-    Backlight(80);
 }
 
 void Lcd_t::Shutdown(void) {
 #ifdef ENABLE_DMAUSART_MODE
     DMA_Cmd(DMA1_Channel2, DISABLE);
 #endif
-    XRES_Lo();
-    XCS_Lo();
+    RESET_Lo();
+    CS_Lo();
     SCLK_Lo();
-    SDA_Lo();
+    DIN_Lo();
     Backlight(0);
 }
 
-void Lcd_t::WriteCmd(uint8_t AByte) {
-    XCS_Lo();
+void Lcd_t::WriteCmd(uint8_t AByte)
+{
+    CS_Lo();
+    chThdSleepMilliseconds(4);
     CmdMode();
-    // Send byte
-    for(uint8_t i=0; i<8; i++) {
-        if(AByte & 0x80) SDA_Hi();
-        else SDA_Lo();
-        SCLK_Hi();
+#ifndef LCD_SPI
+    for(uint8_t i=0; i<8; i++)
+    {
         SCLK_Lo();
+        if(AByte & 0x80)
+            DIN_Hi();
+        else
+            DIN_Lo();
         AByte <<= 1;
+        SCLK_Hi();
     }
-    XCS_Hi();
+#else
+
+#endif
+
+    CS_Hi();
 }
 
-void Lcd_t::WriteData(uint8_t AByte) {
-    XCS_Lo();
+void Lcd_t::WriteData(uint8_t AByte)
+{
+    CS_Lo();
     DataMode();
-    // Send byte
-    for(uint8_t i=0; i<8; i++) {
-        if(AByte & 0x80) SDA_Hi();
-        else SDA_Lo();
-        SCLK_Hi();
+#ifndef LCD_SPI
+    for(uint8_t i=0; i<8; i++)
+    {
         SCLK_Lo();
-        AByte <<= 1;
+        if(AByte & 0x01)
+            DIN_Hi();
+        else
+            DIN_Lo();
+        AByte >>= 1;
+        SCLK_Hi();
     }
-    XCS_Hi();
+#else
+
+#endif
+    CS_Hi();
 }
 
 
 void Lcd_t::Symbols(int column, int row, ...) {
-    int index = column*6 + row*LCD_WIDTH;
+    uint32_t index = column*6 + row*LCD_WIDTH;
     uint8_t FCharCode=1, RepeatCount;
     va_list Arg;
     va_start(Arg, row);    // Set pointer to last argument
@@ -199,43 +207,40 @@ void Lcd_t::Symbols(int column, int row, ...) {
 }
 
 
-void Lcd_t::Printf(int column, int row, const char *format, ...) {
+void Lcd_t::Printf(uint32_t column, uint32_t row, const char *format, ...) {
     char buf[LCD_STR_HEIGHT*LCD_STR_WIDTH+1];
     va_list args;
     va_start(args, format);
-    //kl_vsprintf(buf, format, args);
+    __vsprintf(buf, format, args);
     va_end(args);
 
-    int index = column*6 + row*LCD_WIDTH;
+    uint32_t index = column*6 + row*LCD_WIDTH;
     for (int i = 0; buf[i] != 0; i++) DrawChar(&index, buf[i]);
 }
 
 // ================================ Graphics ===================================
-/*
- * Prints char at specified buf indx, returns next indx
- */
-void Lcd_t::DrawChar(int *index, uint8_t AChar) {
+void Lcd_t::DrawChar(uint32_t *index, uint8_t AChar) {
     for(uint8_t i=0; i < 6; i++) {
         DrawBlock((*index)++, Font_6x8_Data[AChar][i], 0xFF);
         if (*index >= LCD_VIDEOBUF_SIZE) *index = 0;
     }
 }
 
-void Lcd_t::DrawImage(int x, int y, const uint8_t* img) {
+void Lcd_t::DrawImage(uint32_t x, uint32_t y, const uint8_t* img) {
 //    assert(y % 8 == 0);
     y /= 8; // y is now rows, not pixels
     uint8_t width = *img++;
     uint8_t height = *img++;
-    for(int fy = y; fy < y+height; fy++) {
-        int index = x + fy*LCD_WIDTH;
-        for(int fx = x; fx < x+width; fx++) {
+    for(uint32_t fy = y; fy < y+height; fy++) {
+        uint32_t index = x + fy*LCD_WIDTH;
+        for(uint32_t fx = x; fx < x+width; fx++) {
             DrawBlock(index++, *img++, 255);
             if (index > LCD_VIDEOBUF_SIZE) break;
         }
     }
 }
 
-void Lcd_t::DrawBlock(int index, uint8_t data, uint8_t mask) {
+void Lcd_t::DrawBlock(uint32_t index, uint8_t data, uint8_t mask) {
 //    assert((data & ~mask) == 0);
     uint16_t *w = &IBuf[index];
 #ifdef ENABLE_DMAUSART_MODE
@@ -252,4 +257,91 @@ void Lcd_t::DrawBlock(int index, uint8_t data, uint8_t mask) {
         case OVERWRITE_INVERTED:    *w = (*w & ~mask2) | (data2 ^ mask2);    break;
         case INVERT:                *w ^= data2;                            break;
     }
+}
+
+// inner printf lcd
+static inline char *put_uint(char *p,
+               unsigned int n,
+               unsigned int base, int width, bool zero_padded) {
+    char digits[10];
+    int len = 0;
+    do {
+        unsigned int digit = n%base;
+        n /= base;
+        digits[len++] = digit < 10 ? '0'+digit : 'A'+digit-10;
+    } while (n > 0);
+
+    for (int i = len; i < width; i++)
+        if (zero_padded)
+            *p++ = '0';
+        else
+            *p++ = ' ';
+
+    while (len > 0)
+        *p++ = digits[--len];
+    return p;
+}
+
+int Lcd_t::__vsprintf(char *buf, const char *format, va_list args)
+{
+    const char *f = format;
+        char *p = buf;
+        char c;
+        while ((c = *f++) != 0) {
+            if (c != '%') {
+                *p++ = c;
+                continue;
+            }
+
+            // Here goes optional width specification.
+            // If it starts with zero (zero_padded is true), it means we use '0'
+            // instead of ' ' as a filler.
+            int width = 0;
+            bool zero_padded = false;
+            while (true) {
+                c = *f++;
+                if (c < '0' || c > '9')
+                    break;
+                if (width == 0 && c == '0')
+                    zero_padded = true;
+                width *= 10;
+                width += c-'0';
+            }
+
+            if (c == 's') {
+                char *s = va_arg(args, char*);
+                while (*s != 0)
+                    *p++ = *s++;
+            }
+            else if (c == 'c') {
+                *p++ = va_arg(args, int);
+            }
+            else if (c == 'X') {
+                unsigned int n = va_arg(args, unsigned int);
+                p = put_uint(p, n, 16, width, zero_padded);
+            }
+            else if (c == 'u') {
+                unsigned int n = va_arg(args, unsigned int);
+                p = put_uint(p, n, 10, width, zero_padded);
+            }
+            else if (c == 'd') {
+                int n = va_arg(args, int);
+                if (n < 0) {
+                    *p++ = '-';
+                    n = -n;
+                }
+                p = put_uint(p, n, 10, 0, false);
+            }
+            else if (c == 'A') {
+                uint8_t *arr = va_arg(args, uint8_t*);
+                int n = va_arg(args, int);
+                for (int i = 0; i < n; i++) {
+                    if (i > 0)
+                        *p++ = ' ';
+                    p = put_uint(p, arr[i], 16, 2, true);
+                }
+            }
+        }
+        *p = 0;
+        return p-buf;
 }

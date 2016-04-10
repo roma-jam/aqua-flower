@@ -12,19 +12,42 @@
 #include "lcd_font.h"
 #include <stdarg.h>
 
+#define REFRESH_TIME_MS 501
+
 // ==== USART ====
 #define LCD_USART       USART3
 
 // ==== GPIOS ====
 #define LCD_GPIO		GPIOB
 #define LCD_TIM         TIM2
+//#define LCD_SPI         SPI2
 
-#define LCD_BCKLT       10
-#define LCD_XRES        11
-#define LCD_XCS         12
-#define LCD_SCLK        13
-#define LCD_DC          14
-#define LCD_SDA         15
+#ifdef LCD_SPI
+#define SPI_MODE    SPI_CR1_SSM |       /* NSS Software Managment Enable */    \
+                    SPI_CR1_SSI |       /* Internal slave select */            \
+                    SPI_CR1_CPOL |      /* Polaruty High */                    \
+                    SPI_CR1_CPHA |      /* 2 Edge */                           \
+                    SPI_CR1_MSTR        /* Master Configuration */
+
+enum brDiv_t {
+    brDiv2   = 0b000,
+    brDiv4   = 0b001,
+    brDiv8   = 0b010,
+    brDiv16  = 0b011,
+    brDiv32  = 0b100,
+    brDiv64  = 0b101,
+    brDiv128 = 0b110,
+    brDiv256 = 0b111
+};
+#endif
+
+
+#define LCD_BCKLT      10
+#define LCD_RESET      11
+#define LCD_CE         12
+#define LCD_SCLK       13
+#define LCD_DC         14
+#define LCD_DIN        15
 
 //#define LCD_WIDTH		96
 //#define LCD_HEIGHT		65
@@ -37,7 +60,7 @@
 
 // Data sizes
 //#define LCD_VIDEOBUF_SIZE       864     // = 96 * 9
-#define LCD_VIDEOBUF_SIZE         88     // =  80*9
+#define LCD_VIDEOBUF_SIZE         (uint32_t)((LCD_WIDTH*LCD_HEIGHT) >> 3)     // =  84*48/8
 
 #define PCD8544_POWERDOWN 0x04
 #define PCD8544_ENTRYMODE 0x02
@@ -85,33 +108,44 @@ class Lcd_t {
 private:
     uint16_t IBuf[LCD_VIDEOBUF_SIZE];
     DrawMode_t draw_mode;
+    // printf functions
+    int __vsprintf(char *buf, const char *format, va_list args);
+#ifdef LCD_SPI
+    inline void SPI_SetBaud(brDiv_t brDiv)  { LCD_SPI->CR1 |= brDiv << 3;        }
+#endif
     // Pin driving functions
     inline void InitGpios() {
-        PinSetupOut(LCD_GPIO, LCD_XRES, omPushPull, ps50MHz);
-        PinSetupOut(LCD_GPIO, LCD_XCS, omPushPull, ps50MHz);
-        PinSetupOut(LCD_GPIO, LCD_SCLK, omPushPull, ps50MHz);
-        PinSetupOut(LCD_GPIO, LCD_SDA, omPushPull, ps50MHz);
+        PinSetupOut(LCD_GPIO, LCD_RESET, omPushPull, ps50MHz);
+        PinSetupOut(LCD_GPIO, LCD_CE, omPushPull, ps50MHz);
         PinSetupOut(LCD_GPIO, LCD_DC, omPushPull, ps50MHz);
+        PinSetupAlterFuncOutput(LCD_GPIO, LCD_BCKLT, omPushPull, ps50MHz);
+#ifdef LCD_SPI
+        PinSetupAlterFuncOutput(LCD_GPIO, LCD_SCLK, omPushPull, ps50MHz);
+        PinSetupAlterFuncOutput(LCD_GPIO, LCD_DIN, omPushPull, ps50MHz);
+#else
+        PinSetupOut(LCD_GPIO, LCD_SCLK, omPushPull, ps50MHz);
+        PinSetupOut(LCD_GPIO, LCD_DIN, omPushPull, ps50MHz);
+#endif
     }
 
-    void XRES_Hi(void) { PinSet(LCD_GPIO, LCD_XRES);    }
-    void XRES_Lo(void) { PinClear(LCD_GPIO, LCD_XRES);  }
+    void RESET_Hi(void) { PinSet(LCD_GPIO, LCD_RESET);    }
+    void RESET_Lo(void) { PinClear(LCD_GPIO, LCD_RESET);  }
     void DataMode(void){ PinSet(LCD_GPIO, LCD_DC);      }
     void CmdMode(void) { PinClear(LCD_GPIO, LCD_DC);    }
     void SCLK_Hi(void) { PinSet(LCD_GPIO, LCD_SCLK);    }
     void SCLK_Lo(void) { PinClear(LCD_GPIO, LCD_SCLK);  }
-    void SDA_Hi (void) { PinSet(LCD_GPIO, LCD_SDA);     }
-    void SDA_Lo (void) { PinClear(LCD_GPIO, LCD_SDA);   }
+    void DIN_Hi (void) { PinSet(LCD_GPIO, LCD_DIN);     }
+    void DIN_Lo (void) { PinClear(LCD_GPIO, LCD_DIN);   }
     void WriteCmd(uint8_t ACmd);
     void WriteData(uint8_t AData);
     // High-level
-    void DrawBlock(int index, uint8_t data, uint8_t mask);
-    void DrawChar(int *index, uint8_t AChar);
+    void DrawBlock(uint32_t index, uint8_t data, uint8_t mask);
+    void DrawChar(uint32_t *index, uint8_t AChar);
 
 public:
     // IRQ
-    void XCS_Hi (void) { PinSet(LCD_GPIO, LCD_XCS);     }
-    void XCS_Lo (void) { PinClear(LCD_GPIO, LCD_XCS);   }
+    void CS_Hi (void) { PinSet(LCD_GPIO, LCD_CE);     }
+    void CS_Lo (void) { PinClear(LCD_GPIO, LCD_CE);   }
     // General use
     void Init(void);
     void Task(void);
@@ -121,12 +155,12 @@ public:
     // High-level
     void SetDrawMode(DrawMode_t mode) { draw_mode = mode; }
 
-    void Printf(int column, int row, const char *S, ...);
-    void DrawImage(int x, int y, const uint8_t *img);
+    void Printf(uint32_t column, uint32_t row, const char *S, ...);
+    void DrawImage(uint32_t x, uint32_t y, const uint8_t *img);
 #ifdef ENABLE_DMAUSART_MODE
     void Cls(void) { for(int i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0001; }
 #else
-    void Cls(void) { for(int i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0000; }
+    void Cls(void) { for(uint16_t i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0000; }
 #endif
     /* ==== Pseudographics ====
      *  Every command consists of PseudoGraph_t AChar, uint8_t RepeatCount.

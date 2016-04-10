@@ -1,15 +1,19 @@
 /*
- * File:   main.cpp
- * Author: Kreyl
- * Project: Armlet2South
+ * main.cpp
  *
- * Created on Feb 05, 2013, 20:27
+ *  Created on: 10 апр. 2016 г.
+ *      Author: RomaJam
  */
+
 
 #include "ch.h"
 #include "hal.h"
 
 #include "lcd.h"
+#include "buzzer.h"
+#include "buttons.h"
+#include "eeprom.h"
+#include "clock.h"
 
 #include "application.h"
 
@@ -42,8 +46,19 @@ void Init()
 {
     JtagDisable();
     Uart.Init(115200);
-
     Uart.Printf("\rAqua Flower AHB=%u MHz\r", Clk.AHBFreqHz/1000000);
 
     Lcd.Init();
+    Buzzer.Init();
+    Buttons.Init();
+    Clock.Init();
+
+    EE.Init();
+    EE.ReadConf();
+
+    Lcd.Printf(1, 0, "Aqua  Flower");
+//    Buzzer.BeepBeep();
 }
+
+
+
