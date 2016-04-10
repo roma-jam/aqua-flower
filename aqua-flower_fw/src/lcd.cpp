@@ -6,7 +6,6 @@
  */
 
 #include "lcd.h"
-
 //#define ENABLE_DMAUSART_MODE
 
 Lcd_t Lcd;
@@ -39,12 +38,16 @@ extern "C" {
 void Lcd_t::Task() {
 
 //    for (uint16_t i = LCD_VIDEOBUF_SIZE; i > 0; i--)
-    for (uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
-        WriteData(IBuf[i]);
+//    if(ShouldUpdate)
+    {
+        for (uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
+            WriteData(IBuf[i]);
 
-    WriteCmd(PCD8544_SETYADDR | 0x00);    // Y axis initialization
-    WriteCmd(PCD8544_SETXADDR | 0x00);    // X axis initialisation
-
+        SetX(0);
+        SetY(0);
+//        ShouldUpdate = false;
+    }
+//    else
     chThdSleepMilliseconds(REFRESH_TIME_MS);
 }
 
@@ -94,10 +97,8 @@ void Lcd_t::Init()
 
     Cls();             // clear LCD buffer
 
-    for(uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
-        WriteData(0x00);
-
-//    draw_mode = OVERWRITE;
+    ShouldUpdate = false;
+    DrawMode = OVERWRITE;
 
 // ====================== Switch to USART + DMA ============================
 #ifdef ENABLE_DMAUSART_MODE
@@ -130,7 +131,8 @@ void Lcd_t::Init()
 
 //    DMA_Cmd(DMA1_Channel2, ENABLE);          // Enable USARTy DMA TX Channel
 #else
-    //for(int i=0; i < 864; i++) WriteData(0x00);
+    for(uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
+        WriteData(0x00);
 #endif
 
     chThdCreateStatic(waLcdThread, sizeof(waLcdThread), NORMALPRIO, (tfunc_t)LcdThread, NULL);
@@ -150,7 +152,6 @@ void Lcd_t::Shutdown(void) {
 void Lcd_t::WriteCmd(uint8_t AByte)
 {
     CS_Lo();
-    chThdSleepMilliseconds(4);
     CmdMode();
 #ifndef LCD_SPI
     for(uint8_t i=0; i<8; i++)
@@ -215,7 +216,10 @@ void Lcd_t::Printf(uint32_t column, uint32_t row, const char *format, ...) {
     va_end(args);
 
     uint32_t index = column*6 + row*LCD_WIDTH;
-    for (int i = 0; buf[i] != 0; i++) DrawChar(&index, buf[i]);
+    for (int i = 0; buf[i] != 0; i++)
+        DrawChar(&index, buf[i]);
+
+    ShouldUpdate = true;
 }
 
 // ================================ Graphics ===================================
@@ -234,9 +238,42 @@ void Lcd_t::DrawImage(uint32_t x, uint32_t y, const uint8_t* img) {
     for(uint32_t fy = y; fy < y+height; fy++) {
         uint32_t index = x + fy*LCD_WIDTH;
         for(uint32_t fx = x; fx < x+width; fx++) {
-            DrawBlock(index++, *img++, 255);
+            DrawBlock(index++, *img++, 0xFF);
             if (index > LCD_VIDEOBUF_SIZE) break;
         }
+    }
+
+    ShouldUpdate = true;
+}
+
+// Clocking dependencies
+void Lcd_t::DrawClockDigit(uint8_t Pos, uint8_t Digit)
+{
+    uint32_t index = LCD_WIDTH + (CLOCK_DIGIT_WIDTH * Pos);
+    if(Pos > 1)
+        index += CLOCK_DELIMETER_WIDTH;
+    for (uint8_t j = 0; j < CLOCK_DIGIT_HEIGTH; j++)
+    {
+        for (uint8_t i = 0; i < CLOCK_DIGIT_WIDTH; i++)
+        {
+            DrawBlock(index++, Clock_Digits[Digit][i + CLOCK_DIGIT_WIDTH*j], 0xFF);
+        }
+        index -= CLOCK_DIGIT_WIDTH;
+        index += LCD_WIDTH;
+    }
+}
+
+void Lcd_t::DrawDelimeter()
+{
+    uint32_t index = LCD_WIDTH + (CLOCK_DIGIT_WIDTH * 2);
+    for (uint8_t j = 0; j < CLOCK_DIGIT_HEIGTH; j++)
+    {
+        for (uint8_t i = 0; i < CLOCK_DELIMETER_WIDTH; i++)
+        {
+            DrawBlock(index++, Delimeter[i + CLOCK_DELIMETER_WIDTH*j], 0xFF);
+        }
+        index -= CLOCK_DELIMETER_WIDTH;
+        index += LCD_WIDTH;
     }
 }
 
@@ -250,7 +287,7 @@ void Lcd_t::DrawBlock(uint32_t index, uint8_t data, uint8_t mask) {
     uint16_t data2 = data;
     uint16_t mask2 = mask;
 #endif
-    switch (draw_mode) {
+    switch (DrawMode) {
         case DRAW:                  *w |= data2;                            break;
         case CLEAR:                 *w &= ~data2;                           break;
         case OVERWRITE:             *w = (*w & ~mask2) | data2;             break;

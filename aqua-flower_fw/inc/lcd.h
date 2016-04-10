@@ -10,9 +10,10 @@
 
 #include "kl_lib_f100.h"
 #include "lcd_font.h"
+#include "clock_digits.h"
 #include <stdarg.h>
 
-#define REFRESH_TIME_MS 501
+#define REFRESH_TIME_MS 121
 
 // ==== USART ====
 #define LCD_USART       USART3
@@ -107,7 +108,8 @@ enum DrawMode_t {
 class Lcd_t {
 private:
     uint16_t IBuf[LCD_VIDEOBUF_SIZE];
-    DrawMode_t draw_mode;
+    bool ShouldUpdate;
+    DrawMode_t DrawMode;
     // printf functions
     int __vsprintf(char *buf, const char *format, va_list args);
 #ifdef LCD_SPI
@@ -153,15 +155,22 @@ public:
     void Backlight(uint8_t ABrightness)  { LCD_TIM->CCR3 = ABrightness; }
 
     // High-level
-    void SetDrawMode(DrawMode_t mode) { draw_mode = mode; }
-
+    void SetDrawMode(DrawMode_t mode) { DrawMode = mode; }
+    void SetX(uint8_t newX) { WriteCmd(PCD8544_SETXADDR | newX); }
+    void SetY(uint8_t newY) { WriteCmd(PCD8544_SETYADDR | newY); }
     void Printf(uint32_t column, uint32_t row, const char *S, ...);
     void DrawImage(uint32_t x, uint32_t y, const uint8_t *img);
+
+
 #ifdef ENABLE_DMAUSART_MODE
     void Cls(void) { for(int i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0001; }
 #else
     void Cls(void) { for(uint16_t i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0000; }
 #endif
+    // Clock
+    void DrawClockDigit(uint8_t Pos, uint8_t Digit);
+    void DrawDelimeter();
+
     /* ==== Pseudographics ====
      *  Every command consists of PseudoGraph_t AChar, uint8_t RepeatCount.
      *  Example: LineHorizDouble, 11 => print LineHorizDouble 11 times.

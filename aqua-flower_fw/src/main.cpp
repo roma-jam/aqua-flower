@@ -17,6 +17,7 @@
 
 #include "application.h"
 
+#include "clock_digits.h"
 
 static inline void Init();
 
@@ -57,6 +58,11 @@ void Init()
     EE.ReadConf();
 
     Lcd.Printf(1, 0, "Aqua  Flower");
+    Lcd.DrawClockDigit(0, 0);
+    Lcd.DrawClockDigit(1, 0);
+    Lcd.DrawDelimeter();
+    Lcd.DrawClockDigit(2, 0);
+    Lcd.DrawClockDigit(3, 0);
 //    Buzzer.BeepBeep();
 }
 
