@@ -109,6 +109,7 @@ class Lcd_t {
 private:
     uint16_t IBuf[LCD_VIDEOBUF_SIZE];
     bool ShouldUpdate;
+    bool toggle;
     DrawMode_t DrawMode;
     // printf functions
     int __vsprintf(char *buf, const char *format, va_list args);
@@ -144,6 +145,8 @@ private:
     void DrawBlock(uint32_t index, uint8_t data, uint8_t mask);
     void DrawChar(uint32_t *index, uint8_t AChar);
 
+    void DrawDelimeter();
+    void ClearDelimeter();
 public:
     // IRQ
     void CS_Hi (void) { PinSet(LCD_GPIO, LCD_CE);     }
@@ -161,7 +164,6 @@ public:
     void Printf(uint32_t column, uint32_t row, const char *S, ...);
     void DrawImage(uint32_t x, uint32_t y, const uint8_t *img);
 
-
 #ifdef ENABLE_DMAUSART_MODE
     void Cls(void) { for(int i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0001; }
 #else
@@ -169,8 +171,7 @@ public:
 #endif
     // Clock
     void DrawClockDigit(uint8_t Pos, uint8_t Digit);
-    void DrawDelimeter();
-
+    void DelimeterToggle();
     /* ==== Pseudographics ====
      *  Every command consists of PseudoGraph_t AChar, uint8_t RepeatCount.
      *  Example: LineHorizDouble, 11 => print LineHorizDouble 11 times.

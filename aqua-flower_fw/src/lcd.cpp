@@ -98,6 +98,7 @@ void Lcd_t::Init()
     Cls();             // clear LCD buffer
 
     ShouldUpdate = false;
+    toggle = true;
     DrawMode = OVERWRITE;
 
 // ====================== Switch to USART + DMA ============================
@@ -261,6 +262,27 @@ void Lcd_t::DrawClockDigit(uint8_t Pos, uint8_t Digit)
         index -= CLOCK_DIGIT_WIDTH;
         index += LCD_WIDTH;
     }
+}
+
+void Lcd_t::DelimeterToggle()
+{
+    if(toggle)
+    {
+        DrawDelimeter();
+        toggle = false;
+    }
+    else
+    {
+        ClearDelimeter();
+        toggle = true;
+    }
+}
+
+void Lcd_t::ClearDelimeter()
+{
+    DrawMode = CLEAR;
+    DrawDelimeter();
+    DrawMode = OVERWRITE;
 }
 
 void Lcd_t::DrawDelimeter()

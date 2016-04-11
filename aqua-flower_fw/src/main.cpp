@@ -37,6 +37,7 @@ int main(void)
     while(TRUE)
     {
         chThdSleepMilliseconds(999);
+        Lcd.DelimeterToggle();
     }
 
 
@@ -58,11 +59,10 @@ void Init()
     EE.ReadConf();
 
     Lcd.Printf(1, 0, "Aqua  Flower");
-    Lcd.DrawClockDigit(0, 0);
-    Lcd.DrawClockDigit(1, 0);
-    Lcd.DrawDelimeter();
-    Lcd.DrawClockDigit(2, 0);
-    Lcd.DrawClockDigit(3, 0);
+    Lcd.DrawClockDigit(0, 2);
+    Lcd.DrawClockDigit(1, 3);
+    Lcd.DrawClockDigit(2, 1);
+    Lcd.DrawClockDigit(3, 2);
 //    Buzzer.BeepBeep();
 }
 
