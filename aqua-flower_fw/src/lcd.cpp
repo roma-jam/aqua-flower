@@ -78,7 +78,7 @@ void Lcd_t::Init()
 
 #endif
 
-    Backlight(80);
+    Backlight(15);
     RESET_Hi();
     CS_Hi();
     SCLK_Hi();
