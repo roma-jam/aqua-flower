@@ -34,10 +34,14 @@ int main(void)
     Init();
     if(!ClkEnable) Uart.Printf("CF=%u\r", ClkEnable);
 
+    uint32_t sec = 2820;
+
     while(TRUE)
     {
-        chThdSleepMilliseconds(999);
+        sec++;
+        Lcd.DrawTime(sec);
         Lcd.DelimeterToggle();
+        chThdSleepMilliseconds(999);
     }
 
 
@@ -59,10 +63,6 @@ void Init()
     EE.ReadConf();
 
     Lcd.Printf(1, 0, "Aqua  Flower");
-    Lcd.DrawClockDigit(0, 2);
-    Lcd.DrawClockDigit(1, 3);
-    Lcd.DrawClockDigit(2, 1);
-    Lcd.DrawClockDigit(3, 2);
 //    Buzzer.BeepBeep();
 }
 

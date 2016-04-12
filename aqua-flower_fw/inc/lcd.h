@@ -171,6 +171,7 @@ public:
 #endif
     // Clock
     void DrawClockDigit(uint8_t Pos, uint8_t Digit);
+    void DrawTime(uint32_t seconds);
     void DelimeterToggle();
     /* ==== Pseudographics ====
      *  Every command consists of PseudoGraph_t AChar, uint8_t RepeatCount.

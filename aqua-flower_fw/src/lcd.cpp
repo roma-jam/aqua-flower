@@ -38,16 +38,16 @@ extern "C" {
 void Lcd_t::Task() {
 
 //    for (uint16_t i = LCD_VIDEOBUF_SIZE; i > 0; i--)
-//    if(ShouldUpdate)
+    if(ShouldUpdate)
     {
         for (uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
             WriteData(IBuf[i]);
 
         SetX(0);
         SetY(0);
-//        ShouldUpdate = false;
+        ShouldUpdate = false;
     }
-//    else
+    else
     chThdSleepMilliseconds(REFRESH_TIME_MS);
 }
 
@@ -248,6 +248,20 @@ void Lcd_t::DrawImage(uint32_t x, uint32_t y, const uint8_t* img) {
 }
 
 // Clocking dependencies
+void Lcd_t::DrawTime(uint32_t seconds)
+{
+    uint8_t Hours, Minutes;
+    Minutes = seconds/60;
+    Hours = Minutes/60;
+    Minutes = (seconds/60) - (Hours*60);
+    if(Hours/10 != 0)
+        DrawClockDigit(0, Hours/10);
+    DrawClockDigit(1, Hours%10);
+    DrawClockDigit(2, Minutes/10);
+    DrawClockDigit(3, Minutes%10);
+}
+
+
 void Lcd_t::DrawClockDigit(uint8_t Pos, uint8_t Digit)
 {
     uint32_t index = LCD_WIDTH + (CLOCK_DIGIT_WIDTH * Pos);
@@ -276,6 +290,8 @@ void Lcd_t::DelimeterToggle()
         ClearDelimeter();
         toggle = true;
     }
+
+    ShouldUpdate = true;
 }
 
 void Lcd_t::ClearDelimeter()
