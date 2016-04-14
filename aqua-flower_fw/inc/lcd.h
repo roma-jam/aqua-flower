@@ -11,6 +11,7 @@
 #include "kl_lib_f100.h"
 #include "lcd_font.h"
 #include "clock_digits.h"
+#include "clock.h"
 #include <stdarg.h>
 
 #define REFRESH_TIME_MS 121
@@ -145,8 +146,12 @@ private:
     void DrawBlock(uint32_t index, uint8_t data, uint8_t mask);
     void DrawChar(uint32_t *index, uint8_t AChar);
 
-    void DrawDelimeter();
+    // Clock
     void ClearDelimeter();
+    void DrawDelimeter();
+    void DrawClockDigit(uint8_t Pos, uint8_t Digit);
+    void DelimeterToggle();
+
 public:
     // IRQ
     void CS_Hi (void) { PinSet(LCD_GPIO, LCD_CE);     }
@@ -169,10 +174,7 @@ public:
 #else
     void Cls(void) { for(uint16_t i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0000; }
 #endif
-    // Clock
-    void DrawClockDigit(uint8_t Pos, uint8_t Digit);
-    void DrawTime(uint32_t seconds);
-    void DelimeterToggle();
+
     /* ==== Pseudographics ====
      *  Every command consists of PseudoGraph_t AChar, uint8_t RepeatCount.
      *  Example: LineHorizDouble, 11 => print LineHorizDouble 11 times.
@@ -186,6 +188,8 @@ public:
     	uint8_t mask = 1 << (7-y%8);
 		DrawBlock(index, c ? mask : 0, mask);
     }
+
+    friend class clock_t;
 };
 
 extern Lcd_t Lcd;

@@ -98,6 +98,7 @@ private:
     uint8_t HSIEnable();
     uint8_t PLLEnable();
 public:
+    uint8_t LSEEnable();
     // Frequency values
     uint32_t AHBFreqHz;     // HCLK: AHB Bus, Core, Memory, DMA; 24 MHz max
     uint32_t APB1FreqHz;    // PCLK1: APB1 Bus clock; 24 MHz max

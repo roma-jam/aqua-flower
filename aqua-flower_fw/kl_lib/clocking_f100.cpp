@@ -11,6 +11,22 @@
 Clk_t Clk;
 
 // ==== Inner use ====
+uint8_t Clk_t::LSEEnable() {
+    if(RCC->BDCR & RCC_BDCR_LSEON)
+        return 0; // LSE is alreay enabled
+
+    RCC->BDCR |= RCC_BDCR_LSEON; // Enable LSE
+    // Wait until ready
+    uint32_t StartUpCounter=0;
+    do {
+        if(RCC->BDCR & RCC_BDCR_LSERDY)
+            return 0;   // LSE is ready
+        StartUpCounter++;
+    } while(StartUpCounter < HSE_STARTUP_TIMEOUT);
+    return 1; // Timeout
+}
+
+
 uint8_t Clk_t::HSEEnable() {
     RCC->CR |= RCC_CR_HSEON;    // Enable HSE
     // Wait until ready

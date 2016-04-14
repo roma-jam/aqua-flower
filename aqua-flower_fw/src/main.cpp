@@ -34,13 +34,8 @@ int main(void)
     Init();
     if(!ClkEnable) Uart.Printf("CF=%u\r", ClkEnable);
 
-    uint32_t sec = 2820;
-
     while(TRUE)
     {
-        sec++;
-        Lcd.DrawTime(sec);
-        Lcd.DelimeterToggle();
         chThdSleepMilliseconds(999);
     }
 
