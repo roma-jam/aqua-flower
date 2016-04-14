@@ -14,22 +14,35 @@
 #include "clock.h"
 #include <stdarg.h>
 
+//#define ENABLE_DMA_MODE
+
 #define REFRESH_TIME_MS 121
 
-// ==== USART ====
-#define LCD_USART       USART3
-
 // ==== GPIOS ====
-#define LCD_GPIO		GPIOB
-#define LCD_TIM         TIM2
 //#define LCD_SPI         SPI2
+#define LCD_TIM         TIM2
+#define LCD_GPIO		GPIOB
+
+#define LCD_BCKLT      10
+#define LCD_RESET      11
+#define LCD_CE         12
+#define LCD_SCLK       13
+#define LCD_DC         14
+#define LCD_DIN        15
+
+#define LCD_STR_HEIGHT  8
+#define LCD_STR_WIDTH   16
+
+#define LCD_WIDTH 84
+#define LCD_HEIGHT 48
+// Data sizes
+#define LCD_VIDEOBUF_SIZE         (uint32_t)((LCD_WIDTH*LCD_HEIGHT) >> 3)     // =  84*48/8
 
 #ifdef LCD_SPI
 #define SPI_MODE    SPI_CR1_SSM |       /* NSS Software Managment Enable */    \
                     SPI_CR1_SSI |       /* Internal slave select */            \
-                    SPI_CR1_CPOL |      /* Polaruty High */                    \
                     SPI_CR1_CPHA |      /* 2 Edge */                           \
-                    SPI_CR1_MSTR        /* Master Configuration */
+                    SPI_CR1_MSTR        /* Master Configuration */             \
 
 enum brDiv_t {
     brDiv2   = 0b000,
@@ -43,27 +56,7 @@ enum brDiv_t {
 };
 #endif
 
-
-#define LCD_BCKLT      10
-#define LCD_RESET      11
-#define LCD_CE         12
-#define LCD_SCLK       13
-#define LCD_DC         14
-#define LCD_DIN        15
-
-//#define LCD_WIDTH		96
-//#define LCD_HEIGHT		65
-
-#define LCD_STR_HEIGHT  8
-#define LCD_STR_WIDTH   16
-
-#define LCD_WIDTH 84
-#define LCD_HEIGHT 48
-
-// Data sizes
-//#define LCD_VIDEOBUF_SIZE       864     // = 96 * 9
-#define LCD_VIDEOBUF_SIZE         (uint32_t)((LCD_WIDTH*LCD_HEIGHT) >> 3)     // =  84*48/8
-
+// LCD Commands
 #define PCD8544_POWERDOWN 0x04
 #define PCD8544_ENTRYMODE 0x02
 #define PCD8544_EXTENDEDINSTRUCTION 0x01
@@ -169,11 +162,7 @@ public:
     void Printf(uint32_t column, uint32_t row, const char *S, ...);
     void DrawImage(uint32_t x, uint32_t y, const uint8_t *img);
 
-#ifdef ENABLE_DMAUSART_MODE
-    void Cls(void) { for(int i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0001; }
-#else
     void Cls(void) { for(uint16_t i=0; i < LCD_VIDEOBUF_SIZE; i++) IBuf[i] = 0x0000; }
-#endif
 
     /* ==== Pseudographics ====
      *  Every command consists of PseudoGraph_t AChar, uint8_t RepeatCount.

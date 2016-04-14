@@ -6,21 +6,21 @@
  */
 
 #include "lcd.h"
-//#define ENABLE_DMAUSART_MODE
-
 Lcd_t Lcd;
 
 // =============================== Thread ======================================
 static WORKING_AREA(waLcdThread, 128);
 __attribute__ ((__noreturn__))
-static void LcdThread(void *arg) {
+static void LcdThread(void *arg)
+{
     chRegSetThreadName("LcdTask");
-    while(1) Lcd.Task();
+    while(1)
+        Lcd.Task();
 }
 
 
-#ifdef ENABLE_DMAUSART_MODE
-#define LCD_DMA             STM32_DMA1_STREAM2
+#ifdef ENABLE_DMA_MODE
+#define LCD_DMA             STM32_DMA1_STREAM5
 #define LCD_DMA_MODE        DMA_PRIORITY_LOW |                              \
                             STM32_DMA_CR_MSIZE_HWORD | /* Size byte */          \
                             STM32_DMA_CR_PSIZE_HWORD |                          \
@@ -30,7 +30,8 @@ static void LcdThread(void *arg) {
                             STM32_DMA_CR_CIRC       /* Circular */
 
 // ==== Inner DMA ====
-extern "C" {
+extern "C"
+{
     void LcdDmaCompIrq(void *p, uint32_t flags);
 }
 #endif
@@ -75,7 +76,6 @@ void Lcd_t::Init()
     LCD_SPI->SR   = 0x02;
     SPI_SetBaud(brDiv16); // Set baudrate: Fpclk/16 = 48 MHz/16 = 3 Mhz NOTE: max freq 5MHz
     LCD_SPI->CR1 |=  SPI_CR1_SPE; // ENABLE
-
 #endif
 
     Backlight(15);
@@ -102,35 +102,21 @@ void Lcd_t::Init()
     DrawMode = OVERWRITE;
 
 // ====================== Switch to USART + DMA ============================
-#ifdef ENABLE_DMAUSART_MODE
-    PinSetupAlterFuncOutput(LCD_GPIO, LCD_SCLK, omPushPull, ps50MHz);
-    PinSetupAlterFuncOutput(LCD_GPIO, LCD_SDA, omPushPull, ps50MHz);
-    // Workaround hardware bug with disabled CK3 when SPI2 is enabled
-    SPI2->CR2 |= SPI_CR2_SSOE;
-    // ==== USART init ====
-    rccEnableUSART3(false);
-    // Usart clock: enabled, idle low, first edge, enable last bit pulse
+#ifdef ENABLE_DMA_MODE
+    LCD_SPI->CR2 |= SPI_CR2_TXDMAEN;
 
-    // Usart itself
-    LCD_USART->BRR = Clk.APB1FreqHz / 100000;
-    LCD_USART->CR1 = USART_CR1_TE |   /* Transmitter enabled */                 \
-                     USART_CR1_M;     /* 9 bit */
-    LCD_USART->CR2 = USART_CR2_CLKEN |  \
-                     USART_CR2_LBCL;
-
-    LCD_USART->CR3 = USART_CR3_DMAT;   // Enable DMA at transmitter
-
-    LCD_USART->CR1 |= USART_CR1_UE;        // Enable USART
     // ==== DMA ====
     rccEnableDMA1();
     dmaStreamAllocate(LCD_DMA, IRQ_PRIO_MEDIUM, LcdDmaCompIrq, NULL);
-    dmaStreamSetPeripheral(LCD_DMA, &USART3->DR);
+    dmaStreamSetPeripheral(LCD_DMA, &LCD_SPI->DR);
     dmaStreamSetMemory0(LCD_DMA, (uint32_t)&IBuf[0]);
-    dmaStreamSetMode      (LCD_DMA, LCD_DMA_MODE);
-    // Start transmission
-    XCS_Lo();
+    dmaStreamSetMode(LCD_DMA, LCD_DMA_MODE);
 
-//    DMA_Cmd(DMA1_Channel2, ENABLE);          // Enable USARTy DMA TX Channel
+    // Start transmission
+    dmaStreamSetMemory0(LCD_DMA, (uint32_t)&IBuf[0]);
+    dmaStreamSetTransactionSize(LCD_DMA, LCD_VIDEOBUF_SIZE);
+    dmaStreamEnable(LCD_DMA);
+
 #else
     for(uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
         WriteData(0x00);
@@ -140,8 +126,8 @@ void Lcd_t::Init()
 }
 
 void Lcd_t::Shutdown(void) {
-#ifdef ENABLE_DMAUSART_MODE
-    DMA_Cmd(DMA1_Channel2, DISABLE);
+#ifdef ENABLE_DMA_MODE
+    dmaStreamDisable(LCD_DMA);
 #endif
     RESET_Lo();
     CS_Lo();
@@ -154,7 +140,11 @@ void Lcd_t::WriteCmd(uint8_t AByte)
 {
     CS_Lo();
     CmdMode();
-#ifndef LCD_SPI
+#ifdef LCD_SPI
+    LCD_SPI->DR = AByte;
+    while (!(LCD_SPI->SR & SPI_SR_TXE));
+    while (LCD_SPI->SR & SPI_SR_BSY);
+#else
     for(uint8_t i=0; i<8; i++)
     {
         SCLK_Lo();
@@ -165,8 +155,6 @@ void Lcd_t::WriteCmd(uint8_t AByte)
         AByte <<= 1;
         SCLK_Hi();
     }
-#else
-
 #endif
 
     CS_Hi();
@@ -176,7 +164,11 @@ void Lcd_t::WriteData(uint8_t AByte)
 {
     CS_Lo();
     DataMode();
-#ifndef LCD_SPI
+#ifdef LCD_SPI
+    LCD_SPI->DR = AByte;
+    while (!(LCD_SPI->SR & SPI_SR_TXE));
+    while (LCD_SPI->SR & SPI_SR_BSY);
+#else
     for(uint8_t i=0; i<8; i++)
     {
         SCLK_Lo();
@@ -187,8 +179,6 @@ void Lcd_t::WriteData(uint8_t AByte)
         AByte >>= 1;
         SCLK_Hi();
     }
-#else
-
 #endif
     CS_Hi();
 }
