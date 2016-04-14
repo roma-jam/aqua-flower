@@ -13,21 +13,27 @@ eeprom_t EE;
 void eeprom_t::Init() {
     Uart.Printf("EE init\r");
     InitGpios();
-
+    HOLD_Off();
+    CS_Hi();
+    SCLK_Lo();
+    chThdSleepMilliseconds(21);
+    WR_Enable();
+    WriteEnable();
     Test();
 }
 
 bool eeprom_t::Test()
 {
 #ifdef EEPROM_READ_WRITE_TEST
+    // One Byte
     uint32_t TestByte = EEPROM_TEST_BYTE;
     writeU32(EEPROM_TEST_ADDR, TestByte);
     readU32(EEPROM_TEST_ADDR, &TestByte);
+    Uart.Printf("ReadByte: %X\r\n", TestByte);
     if(TestByte != EEPROM_TEST_BYTE)
-    {
-        Uart.Printf("EE test FAILURE\r\n");
         return false;
-    }
+
+    Uart.Printf("EE Test OK\r\n");
 #endif
 
     uint8_t Status = 0;
@@ -48,30 +54,29 @@ Rslt_t eeprom_t::ReadConf()
 
 void eeprom_t::writeU32(uint16_t Addr, uint32_t AByte)
 {
-    CS_Lo();
     for(uint8_t i = 0; i < sizeof(uint32_t); i++)
     {
+        WriteEnable();
+        CS_Lo();
         WriteReadByte(EEPROM_CMD_WRITE); // Ins + Address MSB
         WriteReadByte(Addr + i);
         WriteReadByte((uint8_t)(AByte >> (i << 3)));
+        CS_Hi();
+        chThdSleepMilliseconds(21); // wait EEPROM
     }
-    CS_Hi();
-    chThdSleepMilliseconds(5); // wait EEPROM
 }
 
 void eeprom_t::readU32(uint16_t Addr, uint32_t *pByte)
 {
     *pByte = 0;
-    CS_Lo();
     for(uint8_t i = 0; i < sizeof(uint32_t); i++)
     {
+        CS_Lo();
         WriteReadByte(EEPROM_CMD_READ); // Ins + Address MSB
         WriteReadByte(Addr + i);
-        *pByte <<= 8;
-        *pByte |= ReadByte();
+        *pByte |= (ReadByte() << (i << 3));
+        CS_Hi();
     }
-
-    CS_Hi();
 }
 
 uint8_t eeprom_t::WriteReadByte(uint8_t AByte) {
@@ -82,10 +87,12 @@ uint8_t eeprom_t::WriteReadByte(uint8_t AByte) {
         else
             MOSI_Lo();
         AByte <<= 1;
+        chThdSleepMilliseconds(1);
         SCLK_Hi();
-        res >>= 1;
+        chThdSleepMilliseconds(1);
+        res <<= 1;
         if(isMISO_Hi())
-            res |= 0x80;
+            res |= 0x01;
         SCLK_Lo();
     }
     return res;

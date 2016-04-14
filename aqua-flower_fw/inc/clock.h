@@ -20,20 +20,24 @@ struct time_t {
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
-    void Update()
+    bool Update()
     {
-        if(seconds++ == SEC_PER_MIN)
+        seconds++;
+        if(seconds >= SEC_PER_MIN)
         {
             seconds = 0;
-            if(minutes++ == MIN_PER_HOUR)
+            minutes++;
+            if(minutes >= MIN_PER_HOUR)
             {
                 minutes = 0;
-                if(hours++ == HOUR_PER_DAY)
-                {
+                hours++;
+                if(hours >= HOUR_PER_DAY)
                     hours = 0;
-                }
+                return true;
             }
+            return true;
         }
+        return false;
     }
 };
 

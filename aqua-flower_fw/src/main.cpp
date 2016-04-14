@@ -40,8 +40,6 @@ int main(void)
         chThdSleepMilliseconds(999);
     }
 
-
-
 }
 
 void Init()
@@ -50,17 +48,17 @@ void Init()
     Uart.Init(115200);
     Uart.Printf("\rAqua Flower AHB=%u MHz\r", Clk.AHBFreqHz/1000000);
 
-    Lcd.Init();
+//    Lcd.Init();
     Buzzer.Init();
-    Buttons.Init();
-    Clock.Init();
+//    Buttons.Init();
+//    Clock.Init();
 
     EE.Init();
-    EE.ReadConf();
+//    EE.ReadConf();
 
-    Lcd.Printf(1, 0, "Aqua  Flower");
-//    Buzzer.BeepBeep();
-    Clock.Display();
+//    Lcd.Printf(1, 0, "Aqua  Flower");
+    Buzzer.BeepBeep();
+//    Clock.Display();
 
 }
 

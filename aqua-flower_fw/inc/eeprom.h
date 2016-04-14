@@ -10,7 +10,7 @@
 
 #include "kl_lib_f100.h"
 
-//#define EEPROM_READ_WRITE_TEST
+#define EEPROM_READ_WRITE_TEST
 
 #define EEPROM_SYS_GPIO     GPIOA
 #define EEPROM_HOLD         2
@@ -46,9 +46,9 @@ private:
         PinSetupOut(EEPROM_SYS_GPIO, EEPROM_WRITE, omPushPull, ps50MHz);
         PinSetupOut(EEPROM_SYS_GPIO, EEPROM_HOLD, omPushPull, ps50MHz);
         PinSetupOut(EEPROM_GPIO, EEPROM_CS, omPushPull, ps50MHz);
-        PinSetupOut(EEPROM_GPIO, EEPROM_MISO, omPushPull, ps50MHz);
+        PinSetupOut(EEPROM_GPIO, EEPROM_SCK, omPushPull, ps50MHz);
         PinSetupOut(EEPROM_GPIO, EEPROM_MOSI, omPushPull, ps50MHz);
-        PinSetupIn(EEPROM_GPIO, EEPROM_MISO, pudNone);
+        PinSetupIn(EEPROM_GPIO, EEPROM_MISO, pudPullDown);
     }
     uint8_t WriteReadByte(uint8_t AByte);
 

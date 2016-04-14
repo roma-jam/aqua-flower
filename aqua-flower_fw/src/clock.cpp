@@ -6,6 +6,7 @@
  */
 
 #include "clock.h"
+#include <string.h>
 
 clock_t Clock;
 
@@ -40,12 +41,13 @@ void clock_t::Init()
 void clock_t::SetTime(time_t* Time)
 {
     uint32_t sec = 0;
+    memcpy((uint8_t*)&CurrentTime, (uint8_t*)Time, sizeof(time_t));
     sec = (Time->hours * 60 * 60) + (Time->minutes * 60) + Time->seconds;
-    EnterConfMode();
-    RTC->CNTH = (uint16_t)(sec & 0xFFFF0000 >> 16);
-    RTC->CNTL = (uint16_t)(sec & 0x0000FFFF);
-    Sync();
-    LeaveConfMode();
+//    EnterConfMode();
+//    RTC->CNTH = (uint16_t)(sec & 0xFFFF0000 >> 16);
+//    RTC->CNTL = (uint16_t)(sec & 0x0000FFFF);
+//    Sync();
+//    LeaveConfMode();
 }
 
 
@@ -75,9 +77,10 @@ void clock_t::Display()
 
 void clock_t::IrqHandler()
 {
-    Uart.Printf("Clock IRQ: ++s\r\n");
-    CurrentTime.Update();
+//    Uart.Printf("Clock IRQ\r\n");
     Lcd.DelimeterToggle();
+    if(CurrentTime.Update())
+        Display();
 }
 
 void clock_t::AlarmHandler()
