@@ -11,13 +11,29 @@
 #include "kl_lib_f100.h"
 #include "lcd.h"
 
+#define SEC_PER_MIN         60
+#define MIN_PER_HOUR        60
+#define SEC_PER_HOUR        (SEC_PER_MIN*MIN_PER_HOUR)
+#define HOUR_PER_DAY        24
+
 struct time_t {
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
     void Update()
     {
-        seconds++;
+        if(seconds++ == SEC_PER_MIN)
+        {
+            seconds = 0;
+            if(minutes++ == MIN_PER_HOUR)
+            {
+                minutes = 0;
+                if(hours++ == HOUR_PER_DAY)
+                {
+                    hours = 0;
+                }
+            }
+        }
     }
 };
 

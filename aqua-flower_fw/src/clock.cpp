@@ -77,6 +77,7 @@ void clock_t::IrqHandler()
 {
     Uart.Printf("Clock IRQ: ++s\r\n");
     CurrentTime.Update();
+    Lcd.DelimeterToggle();
 }
 
 void clock_t::AlarmHandler()
