@@ -25,14 +25,12 @@ void eeprom_t::Init() {
 bool eeprom_t::Test()
 {
 #ifdef EEPROM_READ_WRITE_TEST
-    // One Byte
     uint32_t TestByte = EEPROM_TEST_BYTE;
     writeU32(EEPROM_TEST_ADDR, TestByte);
     readU32(EEPROM_TEST_ADDR, &TestByte);
     Uart.Printf("ReadByte: %X\r\n", TestByte);
     if(TestByte != EEPROM_TEST_BYTE)
         return false;
-
     Uart.Printf("EE Test OK\r\n");
 #endif
 
