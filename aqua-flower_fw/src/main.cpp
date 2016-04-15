@@ -50,7 +50,7 @@ void Init()
 
 //    Lcd.Init();
     Buzzer.Init();
-//    Buttons.Init();
+    Buttons.Init();
 //    Clock.Init();
 
     EE.Init();

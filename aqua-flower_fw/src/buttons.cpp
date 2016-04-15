@@ -6,27 +6,39 @@
  */
 
 #include "buttons.h"
+#include <string.h>
 
 buttons_t Buttons;
 
-// =============================== Thread ======================================
-static WORKING_AREA(waBtnThread, 128);
-__attribute__ ((__noreturn__))
-static void BtnThread(void *arg)
+
+void TmrButtonCallback(void *p)
 {
-    chRegSetThreadName("ButtonTask");
-    while(1)
-        Buttons.Task();
+    chSysLockFromIsr();
+    Buttons.Task();
+    chSysUnlockFromIsr();
 }
+
 
 void buttons_t::Init()
 {
     InitGpios();
-
-    //chThdCreateStatic(waBtnThread, sizeof(waBtnThread), NORMALPRIO, (tfunc_t)BtnThread, NULL);
+    memset((uint8_t*)&BtnState, 0x00, sizeof(btn_state_t) * BUTTONS_CNT);
+    chVTSetI(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);
 }
 
 void buttons_t::Task()
 {
-    chThdSleepMilliseconds(999);
+    // check state button 1
+    if(PinIsSet(BUTTON_GPIO, bt_OK) && BtnState[bt_OK] == bs_Released)
+    {
+        Uart.Printf("OK pressed\r\n");
+        BtnState[bt_OK] = bs_Pressed;
+    }
+    else if(BtnState[bt_OK] == bs_Pressed)
+    {
+        Uart.Printf("OK released\r\n");
+        BtnState[bt_OK] = bs_Released;
+    }
+    // send Evt to App thread
+    chVTSetI(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);
 }
