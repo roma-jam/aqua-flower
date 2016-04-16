@@ -36,7 +36,6 @@ int main(void)
 
     while(TRUE)
     {
-        Clock.IrqHandler();
         chThdSleepMilliseconds(999);
     }
 
@@ -51,9 +50,9 @@ void Init()
 //    Lcd.Init();
     Buzzer.Init();
     Buttons.Init();
-//    Clock.Init();
+    Clock.Init();
 
-    EE.Init();
+//    EE.Init();
 //    EE.ReadConf();
 
 //    Lcd.Printf(1, 0, "Aqua  Flower");

@@ -125,6 +125,8 @@
 
 #define HSI_STARTUP_TIMEOUT   ((uint16_t)0x0500) /*!< Time out for HSI start up */
 
+#define LSE_STARTUP_TIMEOUT   ((uint32_t)0x0EE6B280) /*!< Time out for LSE start up (fro1 sec to 5 sec)*/
+
 #define HSI_VALUE    ((uint32_t)8000000) /*!< Value of the Internal oscillator in Hz*/
 
 /**

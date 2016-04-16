@@ -12,21 +12,23 @@ clock_t Clock;
 
 void clock_t::Init()
 {
-
     rccEnablePWRInterface(FALSE);
     rccEnableBKPInterface(FALSE);
     PWR->CR |= PWR_CR_DBP; // enable access to the Backup registers and RTC
 
     // RCC set RTC to LSE 32.768 kHz input
     // Enable LSE
-    if(!Clk.LSEEnable())
+    if(Clk.LSEEnable() == 1)
     {
         Uart.Printf("LSE Failed\r\n");
         return;
     }
 
-    RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;
+    nvicEnableVector(RTC_IRQn, CORTEX_PRIORITY_MASK(IRQ_PRIO_MEDIUM));
+    nvicEnableVector(RTC_Alarm_IRQn, CORTEX_PRIORITY_MASK(IRQ_PRIO_MEDIUM));
+
     RCC->BDCR |= RCC_BDCR_RTCEN;
+    RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;
 
     EnterConfMode();
     RTC->DIVH = 0;
@@ -36,6 +38,7 @@ void clock_t::Init()
     Sync();
     RTC->CRH = RTC_CRH_SECIE; // second interrupt enable
     LeaveConfMode();
+
 }
 
 void clock_t::SetTime(time_t* Time)
@@ -77,7 +80,8 @@ void clock_t::Display()
 
 void clock_t::IrqHandler()
 {
-//    Uart.Printf("Clock IRQ\r\n");
+    Uart.Printf("Clock IRQ\r\n");
+    ClearIRQ();
     Lcd.DelimeterToggle();
     if(CurrentTime.Update())
         Display();
@@ -85,7 +89,9 @@ void clock_t::IrqHandler()
 
 void clock_t::AlarmHandler()
 {
+    RTC->CRL &= ~RTC_CRL_ALRF;
     Uart.Printf("Alarm!\r\n");
+
 }
 
 extern "C"

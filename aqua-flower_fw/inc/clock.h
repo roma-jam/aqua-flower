@@ -44,18 +44,19 @@ struct time_t {
 class clock_t
 {
 private:
+    void ClearIRQ() { RTC->CRL &= ~RTC_CRL_SECF; }
     void EnterConfMode()
     {
-        while(!(RTC->CRL && RTC_CRL_RTOFF)); // Wait RTOFF
+        while(!(RTC->CRL & RTC_CRL_RTOFF)); // Wait RTOFF
         RTC->CRL |= RTC_CRL_CNF; // Enter conf mode
     }
     void LeaveConfMode() {
         RTC->CRL &= ~RTC_CRL_CNF; // Leave conf mode
-        while(!(RTC->CRL && RTC_CRL_RTOFF)); // Wait RTOFF
+        while(!(RTC->CRL & RTC_CRL_RTOFF)); // Wait RTOFF
     }
 
     void Sync() {
-        while(!(RTC->CRL && RTC_CRL_RSF));
+        while(!(RTC->CRL & RTC_CRL_RSF));
     }
 public:
     time_t CurrentTime, CurrentAlarm;

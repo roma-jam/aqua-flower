@@ -10,7 +10,7 @@
 
 #include "kl_lib_f100.h"
 
-#define BUTTON_STATE_TIME_MS      121
+#define BUTTON_STATE_TIME_MS      99
 
 #define BUTTON_GPIO               GPIOB
 

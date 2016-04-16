@@ -6,6 +6,7 @@
  */
 
 #include "buttons.h"
+#include "buzzer.h"
 #include <string.h>
 
 buttons_t Buttons;
@@ -23,21 +24,24 @@ void buttons_t::Init()
 {
     InitGpios();
     memset((uint8_t*)&BtnState, 0x00, sizeof(btn_state_t) * BUTTONS_CNT);
-    chVTSetI(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);
+    chVTSet(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);
 }
 
 void buttons_t::Task()
 {
     // check state button 1
-    if(PinIsSet(BUTTON_GPIO, bt_OK) && BtnState[bt_OK] == bs_Released)
+    for(uint8_t i = 0; i < BUTTONS_CNT; i++)
     {
-        Uart.Printf("OK pressed\r\n");
-        BtnState[bt_OK] = bs_Pressed;
-    }
-    else if(BtnState[bt_OK] == bs_Pressed)
-    {
-        Uart.Printf("OK released\r\n");
-        BtnState[bt_OK] = bs_Released;
+        if(!PinIsSet(BUTTON_GPIO, i) && BtnState[i] == bs_Released)
+        {
+            Uart.Printf("%u pressed\r\n", i);
+            BtnState[i] = bs_Pressed;
+        }
+        else if(PinIsSet(BUTTON_GPIO, i) && BtnState[i] == bs_Pressed)
+        {
+            Uart.Printf("%u released\r\n", i);
+            BtnState[i] = bs_Released;
+        }
     }
     // send Evt to App thread
     chVTSetI(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);

@@ -22,7 +22,7 @@ uint8_t Clk_t::LSEEnable() {
         if(RCC->BDCR & RCC_BDCR_LSERDY)
             return 0;   // LSE is ready
         StartUpCounter++;
-    } while(StartUpCounter < HSE_STARTUP_TIMEOUT);
+    } while(StartUpCounter < LSE_STARTUP_TIMEOUT);
     return 1; // Timeout
 }
 
