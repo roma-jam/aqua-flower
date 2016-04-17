@@ -80,7 +80,7 @@ void clock_t::Display()
 
 void clock_t::IrqHandler()
 {
-    Uart.Printf("Clock IRQ\r\n");
+//    Uart.Printf("Clock IRQ\r\n");
     ClearIRQ();
     Lcd.DelimeterToggle();
     if(CurrentTime.Update())

@@ -14,10 +14,13 @@
 #include "buttons.h"
 #include "eeprom.h"
 #include "clock.h"
+#include "wpump.h"
 
 #include "application.h"
 
 #include "clock_digits.h"
+
+wpump_t WaterPump;
 
 static inline void Init();
 
@@ -47,17 +50,22 @@ void Init()
     Uart.Init(115200);
     Uart.Printf("\rAqua Flower AHB=%u MHz\r", Clk.AHBFreqHz/1000000);
 
-//    Lcd.Init();
+    EE.Init();
+    EE.ReadConf();
+
+    Lcd.Init();
     Buzzer.Init();
     Buttons.Init();
     Clock.Init();
+    WaterPump.Init();
 
-//    EE.Init();
-//    EE.ReadConf();
+    WaterPump.Enable(WPUMP_0);
+    WaterPump.Disable(WPUMP_1);
 
-//    Lcd.Printf(1, 0, "Aqua  Flower");
+
+    Lcd.Printf(1, 0, "Aqua  Flower");
     Buzzer.BeepBeep();
-//    Clock.Display();
+    Clock.Display();
 
 }
 
