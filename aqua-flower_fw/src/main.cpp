@@ -59,10 +59,6 @@ void Init()
     Clock.Init();
     WaterPump.Init();
 
-    WaterPump.Enable(WPUMP_0);
-    WaterPump.Disable(WPUMP_1);
-
-
     Lcd.Printf(1, 0, "Aqua  Flower");
     Buzzer.BeepBeep();
     Clock.Display();
