@@ -12,12 +12,15 @@
 #include <kl_lib_f100.h>
 #include <string.h>
 #include "application_config.h"
+#include "clock.h"
 
 enum screen_type_t {
     st_ScreenSaver = 0,
     st_Settings,
     st_TimeSettings,
-    st_PumpSettings
+    st_PumpSettings,
+    st_Pump1Settings,
+    st_Pump2Settings
 };
 
 extern void AppScreenSaverTimeout(void *p);
@@ -37,6 +40,9 @@ private:
     void DrawScreen();
 
     uint8_t PointerX, PointerY;
+
+    time_t SetUpTime;
+    bool SetHours;
 public:
     Thread *PThd;
     void Init();

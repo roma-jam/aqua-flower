@@ -11,15 +11,17 @@
 #include "kl_lib_f100.h"
 #include "lcd.h"
 
-#define SEC_PER_MIN         60
-#define MIN_PER_HOUR        60
+#define SEC_PER_MIN         59
+#define MIN_PER_HOUR        59
 #define SEC_PER_HOUR        (SEC_PER_MIN*MIN_PER_HOUR)
-#define HOUR_PER_DAY        24
+#define HOUR_PER_DAY        23
 
 struct time_t {
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
+    int8_t hours;
+    int8_t minutes;
+    int8_t seconds;
+
+    void operator = (const time_t Time) { hours = Time.hours; minutes = Time.minutes; seconds = Time.seconds; }
     bool Update()
     {
         seconds++;
@@ -31,7 +33,7 @@ struct time_t {
             {
                 minutes = 0;
                 hours++;
-                if(hours >= HOUR_PER_DAY)
+                if(hours == HOUR_PER_DAY)
                     hours = 0;
                 return true;
             }
@@ -39,6 +41,10 @@ struct time_t {
         }
         return false;
     }
+    void incH() { if(hours++ >= HOUR_PER_DAY) hours = 0;     }
+    void incM() { if(minutes++ >= MIN_PER_HOUR) minutes = 0; }
+    void decH() { if(hours-- <= 0) hours = HOUR_PER_DAY;      }
+    void decM() { if(minutes-- <= 0) minutes = MIN_PER_HOUR;  }
 };
 
 class clock_t
@@ -62,11 +68,12 @@ public:
     time_t CurrentTime, CurrentAlarm;
 
     void Init();
-    void SetTime(time_t* Time);
+    void SetTime(time_t* Time) { CurrentTime = *Time; }
     void SetAlarm(time_t* Time);
     void Display();
     void Toggle();
 
+    void DisplayForSetting(time_t Time, bool SetH);
     void IrqHandler();
     void AlarmHandler();
 };

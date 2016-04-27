@@ -15,6 +15,9 @@
 #define APP_TIME_POSITION                   2
 #define APP_PUMP_POSITION                   3
 
+#define APP_PUMP1_POSITIONS                 2
+#define APP_PUMP2_POSITIONS                 3
+
 #define LCD_DEFAULT_BACKLIGTH_MS            4999
 
 
