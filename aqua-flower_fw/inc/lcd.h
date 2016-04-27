@@ -12,31 +12,34 @@
 #include "lcd_font.h"
 #include "clock_digits.h"
 #include "clock.h"
+#include "application_config.h"
 #include <stdarg.h>
 
 //#define ENABLE_DMA_MODE
 
-#define REFRESH_TIME_MS 121
+#define REFRESH_TIME_MS             121
 
 // ==== GPIOS ====
-//#define LCD_SPI         SPI2
-#define LCD_TIM         TIM2
-#define LCD_GPIO		GPIOB
+//#define LCD_SPI                   SPI2
+#define LCD_TIM                     TIM2
+#define LCD_GPIO		            GPIOB
 
-#define LCD_BCKLT      10
-#define LCD_RESET      11
-#define LCD_CE         12
-#define LCD_SCLK       13
-#define LCD_DC         14
-#define LCD_DIN        15
+#define LCD_BCKLT                   10
+#define LCD_RESET                   11
+#define LCD_CE                      12
+#define LCD_SCLK                    13
+#define LCD_DC                      14
+#define LCD_DIN                     15
 
-#define LCD_STR_HEIGHT  8
-#define LCD_STR_WIDTH   16
+#define LCD_STR_HEIGHT              8
+#define LCD_STR_WIDTH               16
 
-#define LCD_WIDTH 84
-#define LCD_HEIGHT 48
+#define LCD_WIDTH                   84
+#define LCD_HEIGHT                  48
 // Data sizes
-#define LCD_VIDEOBUF_SIZE         (uint32_t)((LCD_WIDTH*LCD_HEIGHT) >> 3)     // =  84*48/8
+#define LCD_VIDEOBUF_SIZE           (uint32_t)((LCD_WIDTH*LCD_HEIGHT) >> 3)     // =  84*48/8
+
+#define LCD_DEFAULT_BACKLIGTH       15
 
 #ifdef LCD_SPI
 #define SPI_MODE    SPI_CR1_SSM |       /* NSS Software Managment Enable */    \
@@ -99,8 +102,11 @@ enum DrawMode_t {
 	INVERT // zero has no effect, one inverts
 };
 
+extern void LcdBackligthTmr(void *p);
+
 class Lcd_t {
 private:
+    VirtualTimer Timer;
     uint16_t IBuf[LCD_VIDEOBUF_SIZE];
     bool ShouldUpdate;
     bool toggle;
@@ -144,6 +150,7 @@ private:
     void DrawDelimeter();
     void DrawClockDigit(uint8_t Pos, uint8_t Digit);
     void DelimeterToggle();
+    void Backlight(uint8_t ABrightness)  { LCD_TIM->CCR3 = ABrightness; }
 
 public:
     // IRQ
@@ -153,7 +160,16 @@ public:
     void Init(void);
     void Task(void);
     void Shutdown(void);
-    void Backlight(uint8_t ABrightness)  { LCD_TIM->CCR3 = ABrightness; }
+
+
+    void BacklightOn()
+    {
+        Backlight(LCD_DEFAULT_BACKLIGTH);
+        chVTReset(&Timer);
+        chVTSet(&Timer, MS2ST(LCD_DEFAULT_BACKLIGTH_MS), LcdBackligthTmr, nullptr);
+    }
+    void BacklightOff() { Backlight(0); }
+
 
     // High-level
     void SetDrawMode(DrawMode_t mode) { DrawMode = mode; }

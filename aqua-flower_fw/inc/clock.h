@@ -65,6 +65,7 @@ public:
     void SetTime(time_t* Time);
     void SetAlarm(time_t* Time);
     void Display();
+    void Toggle();
 
     void IrqHandler();
     void AlarmHandler();

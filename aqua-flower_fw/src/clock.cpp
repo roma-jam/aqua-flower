@@ -5,8 +5,10 @@
  *      Author: RomaJam
  */
 
-#include "clock.h"
 #include <string.h>
+#include "clock.h"
+#include "events.h"
+#include "application.h"
 
 clock_t Clock;
 
@@ -46,6 +48,7 @@ void clock_t::SetTime(time_t* Time)
     uint32_t sec = 0;
     memcpy((uint8_t*)&CurrentTime, (uint8_t*)Time, sizeof(time_t));
     sec = (Time->hours * 60 * 60) + (Time->minutes * 60) + Time->seconds;
+    Uart.Printf("Set sec=%u\r\n", sec);
 //    EnterConfMode();
 //    RTC->CNTH = (uint16_t)(sec & 0xFFFF0000 >> 16);
 //    RTC->CNTL = (uint16_t)(sec & 0x0000FFFF);
@@ -53,6 +56,10 @@ void clock_t::SetTime(time_t* Time)
 //    LeaveConfMode();
 }
 
+void clock_t::Toggle()
+{
+    Lcd.DelimeterToggle();
+}
 
 void clock_t::Display()
 {
@@ -80,18 +87,14 @@ void clock_t::Display()
 
 void clock_t::IrqHandler()
 {
-//    Uart.Printf("Clock IRQ\r\n");
     ClearIRQ();
-    Lcd.DelimeterToggle();
-    if(CurrentTime.Update())
-        Display();
+    App.SendEventI(EVTMSK_SEC_UPDATE);
 }
 
 void clock_t::AlarmHandler()
 {
     RTC->CRL &= ~RTC_CRL_ALRF;
     Uart.Printf("Alarm!\r\n");
-
 }
 
 extern "C"

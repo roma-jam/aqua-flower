@@ -37,11 +37,7 @@ int main(void)
     Init();
     if(!ClkEnable) Uart.Printf("CF=%u\r", ClkEnable);
 
-    while(TRUE)
-    {
-        chThdSleepMilliseconds(999);
-    }
-
+    while(TRUE) { chThdSleepMilliseconds(999); }
 }
 
 void Init()
@@ -50,23 +46,17 @@ void Init()
     Uart.Init(115200);
     Uart.Printf("\rAqua Flower AHB=%u MHz\r", Clk.AHBFreqHz/1000000);
 
-    EE.Init();
-    EE.ReadConf();
-
+    App.Init();
     Lcd.Init();
+    Clock.Init();
+    Clock.Display();
+//    EE.Init();
     Buzzer.Init();
     Buttons.Init();
-    Clock.Init();
     WaterPump.Init();
 
-    WaterPump.Enable(WPUMP_0);
-    WaterPump.Disable(WPUMP_1);
-
-
-    Lcd.Printf(1, 0, "Aqua  Flower");
+//    EE.ReadConf();
     Buzzer.BeepBeep();
-    Clock.Display();
-
 }
 
 
