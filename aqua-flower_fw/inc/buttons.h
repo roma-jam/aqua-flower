@@ -10,18 +10,18 @@
 
 #include "kl_lib_f100.h"
 
-#define BUTTON_STATE_TIME_MS      99
+#define BUTTON_STATE_TIME_MS        99
 
-#define BUTTON_GPIO               GPIOB
+#define BUTTON_GPIO                 GPIOB
 
-#define BUTTON_OK                 0
-#define BUTTON_CANCEL             1
-#define BUTTON_UP                 2
-#define BUTTON_DOWN               3
-#define BUTTON_LEFT               4
-#define BUTTON_RIGTH              5
+#define BUTTON_OK                   0
+#define BUTTON_CANCEL               1
+#define BUTTON_UP                   2
+#define BUTTON_DOWN                 3
+#define BUTTON_LEFT                 4
+#define BUTTON_RIGTH                5
 
-#define BUTTONS_CNT                6
+#define BUTTONS_CNT                 6
 
 enum btn_type_t {
     bt_OK       = BUTTON_OK,
@@ -40,6 +40,7 @@ enum btn_state_t {
 class buttons_t {
 private:
     VirtualTimer Timer;
+    btn_state_t BtnState[BUTTONS_CNT];
     void InitGpios()
     {
         PinSetupIn(BUTTON_GPIO, BUTTON_OK,  pudPullUp);
@@ -51,9 +52,10 @@ private:
     }
 
 public:
-    btn_state_t BtnState[BUTTONS_CNT];
+    btn_state_t *pBtnState;
     void Init();
     void Task();
+
 };
 
 

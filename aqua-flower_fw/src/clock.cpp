@@ -5,8 +5,10 @@
  *      Author: RomaJam
  */
 
-#include "clock.h"
 #include <string.h>
+#include "clock.h"
+#include "events.h"
+#include "application.h"
 
 clock_t Clock;
 
@@ -41,18 +43,10 @@ void clock_t::Init()
 
 }
 
-void clock_t::SetTime(time_t* Time)
+void clock_t::Toggle()
 {
-    uint32_t sec = 0;
-    memcpy((uint8_t*)&CurrentTime, (uint8_t*)Time, sizeof(time_t));
-    sec = (Time->hours * 60 * 60) + (Time->minutes * 60) + Time->seconds;
-//    EnterConfMode();
-//    RTC->CNTH = (uint16_t)(sec & 0xFFFF0000 >> 16);
-//    RTC->CNTL = (uint16_t)(sec & 0x0000FFFF);
-//    Sync();
-//    LeaveConfMode();
+    Lcd.DelimeterToggle();
 }
-
 
 void clock_t::Display()
 {
@@ -77,21 +71,48 @@ void clock_t::Display()
     Lcd.DrawClockDigit(3, mLo);
 }
 
+void clock_t::DisplayForSetting(time_t Time, bool SetH)
+{
+    uint8_t hHi, hLo, mHi, mLo;
+
+    hLo = Time.hours;
+    hHi = Time.hours / 10;
+    mLo = Time.minutes;
+    mHi = Time.minutes / 10;
+
+    if(SetH)
+        Lcd.SetDrawMode(OVERWRITE_INVERTED);
+    if(mHi)
+        mLo -= mHi * 10;
+
+    if(hHi)
+    {
+        Lcd.DrawClockDigit(0, hHi);
+        hLo -= hHi * 10;
+    }
+    Lcd.DrawClockDigit(1, hLo);
+    if(SetH)
+        Lcd.SetDrawMode(OVERWRITE);
+
+    if(!SetH)
+        Lcd.SetDrawMode(OVERWRITE_INVERTED);
+    Lcd.DrawClockDigit(2, mHi);
+    Lcd.DrawClockDigit(3, mLo);
+    if(!SetH)
+        Lcd.SetDrawMode(OVERWRITE);
+}
+
 
 void clock_t::IrqHandler()
 {
-//    Uart.Printf("Clock IRQ\r\n");
     ClearIRQ();
-    Lcd.DelimeterToggle();
-    if(CurrentTime.Update())
-        Display();
+    App.SendEventI(EVTMSK_SEC_UPDATE);
 }
 
 void clock_t::AlarmHandler()
 {
     RTC->CRL &= ~RTC_CRL_ALRF;
     Uart.Printf("Alarm!\r\n");
-
 }
 
 extern "C"

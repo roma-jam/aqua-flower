@@ -6,43 +6,47 @@
  */
 
 #include "buttons.h"
-#include "buzzer.h"
 #include <string.h>
+#include "buzzer.h"
+#include "events.h"
+#include "application.h"
 
 buttons_t Buttons;
 
-
-void TmrButtonCallback(void *p)
+// =============================== Thread ======================================
+static WORKING_AREA(waButtonThd, 128);
+__attribute__ ((__noreturn__))
+static void BtnThd(void *arg)
 {
-    chSysLockFromIsr();
-    Buttons.Task();
-    chSysUnlockFromIsr();
+    chRegSetThreadName("ButtonTask");
+    while(1)
+        Buttons.Task();
 }
-
 
 void buttons_t::Init()
 {
     InitGpios();
     memset((uint8_t*)&BtnState, 0x00, sizeof(btn_state_t) * BUTTONS_CNT);
-    chVTSet(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);
+    pBtnState = BtnState;
+    chThdCreateStatic(waButtonThd, sizeof(waButtonThd), NORMALPRIO, (tfunc_t)BtnThd, NULL);
 }
 
 void buttons_t::Task()
 {
     // check state button 1
+    bool StateChanged = false;
     for(uint8_t i = 0; i < BUTTONS_CNT; i++)
     {
-        if(!PinIsSet(BUTTON_GPIO, i) && BtnState[i] == bs_Released)
+        if(!PinIsSet(BUTTON_GPIO, i) && pBtnState[i] == bs_Released)
         {
-            Uart.Printf("%u pressed\r\n", i);
-            BtnState[i] = bs_Pressed;
+            pBtnState[i] = bs_Pressed;
+            StateChanged = true;
         }
-        else if(PinIsSet(BUTTON_GPIO, i) && BtnState[i] == bs_Pressed)
-        {
-            Uart.Printf("%u released\r\n", i);
-            BtnState[i] = bs_Released;
-        }
+        else if(PinIsSet(BUTTON_GPIO, i) && pBtnState[i] == bs_Pressed)
+            pBtnState[i] = bs_Released;
     }
-    // send Evt to App thread
-    chVTSetI(&Timer, MS2ST(BUTTON_STATE_TIME_MS), TmrButtonCallback, nullptr);
+    if(StateChanged)
+        App.SendEvent(EVTMSK_BUTTON_UPDATE);
+
+    chThdSleepMilliseconds(BUTTON_STATE_TIME_MS);
 }

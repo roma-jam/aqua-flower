@@ -18,6 +18,13 @@ static void LcdThread(void *arg)
         Lcd.Task();
 }
 
+void LcdBackligthTmr(void *p)
+{
+    chSysLockFromIsr();
+    Lcd.BacklightOff();
+    chSysUnlockFromIsr();
+}
+
 
 #ifdef ENABLE_DMA_MODE
 #define LCD_DMA             STM32_DMA1_STREAM5
@@ -36,9 +43,8 @@ extern "C"
 }
 #endif
 
-void Lcd_t::Task() {
-
-//    for (uint16_t i = LCD_VIDEOBUF_SIZE; i > 0; i--)
+void Lcd_t::Task()
+{
     if(ShouldUpdate)
     {
         for (uint16_t i = 0; i < LCD_VIDEOBUF_SIZE; i++)
@@ -78,7 +84,7 @@ void Lcd_t::Init()
     LCD_SPI->CR1 |=  SPI_CR1_SPE; // ENABLE
 #endif
 
-    Backlight(15);
+    BacklightOn();
     RESET_Hi();
     CS_Hi();
     SCLK_Hi();
@@ -90,7 +96,7 @@ void Lcd_t::Init()
     RESET_Hi();
 
     WriteCmd(PCD8544_FUNCTIONSET | PCD8544_EXTENDEDINSTRUCTION);    // display ON
-    WriteCmd(PCD8544_SETBIAS | 0x04);
+    WriteCmd(PCD8544_SETBIAS | 0x03);
     WriteCmd(PCD8544_SETVOP | 0x2A);
     WriteCmd(PCD8544_FUNCTIONSET);
     WriteCmd(PCD8544_DISPLAYCONTROL | PCD8544_DISPLAYNORMAL);
@@ -304,7 +310,7 @@ void Lcd_t::DrawBlock(uint32_t index, uint8_t data, uint8_t mask) {
         case DRAW:                  *w |= data2;                            break;
         case CLEAR:                 *w &= ~data2;                           break;
         case OVERWRITE:             *w = (*w & ~mask2) | data2;             break;
-        case OVERWRITE_INVERTED:    *w = (*w & ~mask2) | (data2 ^ mask2);    break;
+        case OVERWRITE_INVERTED:    *w = (*w & ~mask2) | (data2 ^ mask2);   break;
         case INVERT:                *w ^= data2;                            break;
     }
 }
