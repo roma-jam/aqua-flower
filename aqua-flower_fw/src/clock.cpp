@@ -111,6 +111,7 @@ void clock_t::IrqHandler()
     App.SendEventI(EVTMSK_SEC_UPDATE);
     if(Clock.CurrentTime.Update())
         App.SendEventI(EVTMSK_MIN_UPDATE);
+//    Uart.Printf("%u:%u:%u\r\n", Clock.CurrentTime.hours, Clock.CurrentTime.minutes, Clock.CurrentTime.seconds);
 }
 
 void clock_t::AlarmHandler()

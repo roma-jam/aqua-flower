@@ -50,11 +50,11 @@ void Init()
     App.Init();
     Lcd.Init();
     Clock.Init();
+
     Clock.Display();
     Buttons.Init();
     WaterPump.Init();
 
-//    EE.ReadConf();
 //    Buzzer.BeepBeep();
 }
 

@@ -65,7 +65,7 @@ void App_t::Init()
 
     if(!EE.isInit())
     {
-        Uart.Printf("APP: EE not reafy. PumpConf Err\r\n");
+        Uart.Printf("APP: EE not ready. PumpConf FALURE\r\n");
         return;
     }
 

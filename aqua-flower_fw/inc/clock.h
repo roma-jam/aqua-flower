@@ -24,16 +24,13 @@ struct time_t {
     void operator = (const time_t Time) { hours = Time.hours; minutes = Time.minutes; seconds = Time.seconds; }
     bool Update()
     {
-        seconds++;
-        if(seconds >= SEC_PER_MIN)
+        if(seconds++ >= SEC_PER_MIN)
         {
             seconds = 0;
-            minutes++;
-            if(minutes >= MIN_PER_HOUR)
+            if(minutes++ >= MIN_PER_HOUR)
             {
                 minutes = 0;
-                hours++;
-                if(hours == HOUR_PER_DAY)
+                if(hours++ >= HOUR_PER_DAY)
                     hours = 0;
                 return true;
             }
