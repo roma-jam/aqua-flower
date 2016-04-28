@@ -1,4 +1,4 @@
-update=03.04.2016 23:54:04
+update=20/04/2016 11:52:41
 version=1
 last_client=kicad
 [pcbnew]
@@ -22,6 +22,9 @@ BoardOutlineThickness=0.100000000000
 ModuleOutlineThickness=0.150000000000
 [general]
 version=1
+[cvpcb]
+version=1
+NetIExt=net
 [eeschema]
 version=1
 LibDir=
@@ -40,6 +43,4 @@ LibName11=D:/Libs/Kicad/Switches
 LibName12=D:/Libs/Kicad/Tittar_kl
 LibName13=D:/Libs/Kicad/Transistors_kl
 LibName14=D:/Libs/Kicad/memory
-[cvpcb]
-version=1
-NetIExt=net
+LibName15=D:/Libs/Kicad/lpc_rl
