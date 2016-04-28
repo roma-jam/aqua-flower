@@ -16,6 +16,21 @@
 #define WPUMP_1         0
 #define WPUMP_2         1
 
+
+struct water_pump_conf_t {
+    uint8_t wpumpNum;
+    uint8_t everyH;
+    uint8_t durationS;
+    uint8_t powerCounter;
+    void Flush() { wpumpNum = 0; everyH = 0; durationS = 0; powerCounter = 0; }
+    void operator= (const water_pump_conf_t wPumpCfg) {
+        wpumpNum        = wPumpCfg.wpumpNum;
+        everyH          = wPumpCfg.everyH;
+        durationS       = wPumpCfg.durationS;
+        powerCounter    = wPumpCfg.powerCounter;
+    }
+} __attribute__ ((__packed__));
+
 class wpump_t {
 private:
     VirtualTimer TimerPump1, TimerPump2;

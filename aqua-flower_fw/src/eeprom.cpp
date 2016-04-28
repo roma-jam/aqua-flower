@@ -11,42 +11,65 @@
 eeprom_t EE;
 
 void eeprom_t::Init() {
-    Uart.Printf("EE init\r");
+#if (APP_EEPROM_DEBUG)
+    Uart.Printf("EE init\r\n");
+#endif
+    _IsInit = false;
     InitGpios();
+
     HOLD_Off();
     CS_Hi();
     SCLK_Lo();
     chThdSleepMilliseconds(21);
     WR_Enable();
     WriteEnable();
-    Test();
+
+#if (EEPROM_READ_WRITE_TEST)
+    if(!Test())
+    {
+        Uart.Printf("EE Test FAILURE\r\n");
+        return;
+    }
+#endif
+    _IsInit = true;
+
 }
 
+#if (EEPROM_READ_WRITE_TEST)
 bool eeprom_t::Test()
 {
-#ifdef EEPROM_READ_WRITE_TEST
     uint32_t TestByte = EEPROM_TEST_BYTE;
     writeU32(EEPROM_TEST_ADDR, TestByte);
     readU32(EEPROM_TEST_ADDR, &TestByte);
+#if (APP_EEPROM_DEBUG)
     Uart.Printf("ReadByte: %X\r\n", TestByte);
-    if(TestByte != EEPROM_TEST_BYTE)
-        return false;
-    Uart.Printf("EE Test OK\r\n");
 #endif
 
-    uint8_t Status = 0;
-    CS_Lo();
-    WriteReadByte(EEPROM_CMD_RDSR);
-    Status = ReadByte();
-    CS_Hi();
-    Uart.Printf("EE read status: %X\r\n", Status);
+    if(TestByte != EEPROM_TEST_BYTE)
+        return false;
+
+    Uart.Printf("EE Test OK\r\n");
     return true;
 }
+#endif
 
-
-Rslt_t eeprom_t::ReadConf()
+Rslt_t eeprom_t::WriteConf(uint16_t Addr, uint32_t *Conf)
 {
-    Uart.Printf("Read Conf\r");
+    uint32_t WriteConf = *Conf;
+    writeU32(Addr, WriteConf);
+    return OK;
+}
+
+Rslt_t eeprom_t::ReadConf(uint16_t Addr, uint32_t *Conf)
+{
+    uint32_t ReadConf;
+    readU32(Addr, &ReadConf);
+
+#if (APP_EEPROM_DEBUG)
+    Uart.Printf("EE: Read Conf addr=%X : 0x%X\r", Addr, ReadConf);
+#endif
+
+    *Conf = ReadConf;
     return OK;
 }
 

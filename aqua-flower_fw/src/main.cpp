@@ -44,12 +44,13 @@ void Init()
     Uart.Init(115200);
     Uart.Printf("\rAqua Flower AHB=%u MHz\r", Clk.AHBFreqHz/1000000);
 
+    EE.Init();
+    Buzzer.Init();
+
     App.Init();
     Lcd.Init();
     Clock.Init();
     Clock.Display();
-//    EE.Init();
-    Buzzer.Init();
     Buttons.Init();
     WaterPump.Init();
 

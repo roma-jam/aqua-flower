@@ -9,8 +9,7 @@
 #define INC_EEPROM_H_
 
 #include "kl_lib_f100.h"
-
-#define EEPROM_READ_WRITE_TEST
+#include "config.h"
 
 #define EEPROM_SYS_GPIO     GPIOA
 #define EEPROM_HOLD         2
@@ -34,13 +33,9 @@
 
 #define EEPROM_PAGE_SZ      16 // max page size = 16 bytes
 
-#ifdef EEPROM_READ_WRITE_TEST
-#define EEPROM_TEST_BYTE    0x5DADFACE
-#define EEPROM_TEST_ADDR    0x100
-#endif
-
 class eeprom_t {
 private:
+    bool _IsInit;
     void InitGpios()
     {
         PinSetupOut(EEPROM_SYS_GPIO, EEPROM_WRITE, omPushPull, ps50MHz);
@@ -66,16 +61,21 @@ private:
 
     uint8_t ReadByte()  { return WriteReadByte(0x00);               }
 
-public:
-    void Init();
-    bool Test();
-    Rslt_t ReadConf();
-
     void WriteEnable()  { CS_Lo(); WriteReadByte(EEPROM_CMD_WREN); CS_Hi(); }
     void WriteDisable() { CS_Lo(); WriteReadByte(EEPROM_CMD_WRDI); CS_Hi(); }
 
     void writeU32(uint16_t Addr, uint32_t AByte);
     void readU32(uint16_t Addr, uint32_t *pByte);
+#if (EEPROM_READ_WRITE_TEST)
+    bool Test();
+#endif
+
+public:
+    bool isInit() { return _IsInit; }
+    void Init();
+    Rslt_t WriteConf(uint16_t Addr, uint32_t *Conf);
+    Rslt_t ReadConf(uint16_t Addr, uint32_t *Conf);
+
 };
 
 extern eeprom_t EE;

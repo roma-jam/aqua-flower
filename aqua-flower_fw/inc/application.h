@@ -13,6 +13,7 @@
 #include <string.h>
 #include "clock.h"
 #include "config.h"
+#include "wpump.h"
 
 enum screen_type_t {
     st_ScreenSaver = 0,
@@ -20,7 +21,14 @@ enum screen_type_t {
     st_TimeSettings,
     st_PumpSettings,
     st_Pump1Settings,
-    st_Pump2Settings
+    st_Pump2Settings,
+    st_Pump1SetUp,
+    st_Pump2SetUp,
+};
+
+enum pump_config_step_t {
+    pcs_Periodic = 0,
+    pcs_Duration
 };
 
 extern void AppScreenSaverTimeout(void *p);
@@ -28,27 +36,33 @@ extern void AppScreenSaverTimeout(void *p);
 class App_t
 {
 private:
-    VirtualTimer SSTimer;
+    // Lcd & Graphics
+    VirtualTimer        SSTimer;
+    screen_type_t       CurrScreen;
+    uint8_t             PointerX, PointerY;
+    time_t              SetUpTime;
+    bool                SetHours;
+    pump_config_step_t  SetPumpConfig;
+    water_pump_conf_t   wPumpSetup;
+
+    // WPump
+    water_pump_conf_t wPump1_Conf, wPump2_Conf;
+
+    void Button();
+    void DrawScreen();
+    void DrawPumpInfo(uint8_t PumpNum);
     void SSTimerStart()
     {
         chVTReset(&SSTimer);
         chVTSet(&SSTimer, MS2ST(APP_SCREENSAVER_TIMEOUT_MS), AppScreenSaverTimeout, nullptr);
     }
 
-    screen_type_t CurrScreen;
-    void Button();
-    void DrawScreen();
-
-    uint8_t PointerX, PointerY;
-
-    time_t SetUpTime;
-    bool SetHours;
 public:
     Thread *PThd;
     void Init();
     void Task();
     void ScreenSaver();
-    void SendEvent(eventmask_t mask)  { chEvtSignal(PThd, mask); }
+    void SendEvent(eventmask_t mask)   { chEvtSignal(PThd, mask);  }
     void SendEventI(eventmask_t mask)  { chEvtSignalI(PThd, mask); }
 };
 

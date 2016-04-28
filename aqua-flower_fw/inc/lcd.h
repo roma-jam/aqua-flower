@@ -8,12 +8,12 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-#include <config.h>
+#include <stdarg.h>
 #include "kl_lib_f100.h"
 #include "lcd_font.h"
 #include "clock_digits.h"
 #include "clock.h"
-#include <stdarg.h>
+#include "config.h"
 
 //#define ENABLE_DMA_MODE
 

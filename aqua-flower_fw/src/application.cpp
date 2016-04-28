@@ -12,8 +12,11 @@
 #include "buttons.h"
 #include "buzzer.h"
 #include "lcd.h"
+#include "eeprom.h"
 
 App_t App;
+
+#define GET_EEPROM_ADDR(PUMP)      ((uint32_t)(APP_EEPROM_CONFIG_ADDR + (sizeof(uint32_t)*PUMP)))
 
 static WORKING_AREA(waAppThread, 256);
 __attribute__ ((__noreturn__))
@@ -57,6 +60,17 @@ void App_t::Init()
 {
     PThd = chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO, (tfunc_t)AppThread, NULL);
     SSTimerStart();
+    wPump1_Conf.Flush();
+    wPump2_Conf.Flush();
+
+    if(!EE.isInit())
+    {
+        Uart.Printf("APP: EE not reafy. PumpConf Err\r\n");
+        return;
+    }
+
+    EE.ReadConf(GET_EEPROM_ADDR(WPUMP_1), (uint32_t*)&wPump1_Conf);
+    EE.ReadConf(GET_EEPROM_ADDR(WPUMP_2), (uint32_t*)&wPump2_Conf);
 }
 
 
@@ -100,6 +114,7 @@ void App_t::Button()
                         if (PointerY == APP_PUMP_POSITION)
                         {
                             CurrScreen = st_PumpSettings;
+                            PointerY = APP_PUMP1_POSITIONS;
                         }
                     }
                     break;
@@ -164,9 +179,87 @@ void App_t::Button()
                 }
 
                 case st_Pump1Settings:
+                    if(Btn == bt_Left || Btn == bt_Cancel)
+                        CurrScreen = st_PumpSettings;
+                    if(Btn == bt_OK)
+                    {
+                        CurrScreen = st_Pump1SetUp;
+                        SetPumpConfig = pcs_Periodic;
+                        wPumpSetup.Flush();
+                    }
+                    break;
+
                 case st_Pump2Settings:
                     if(Btn == bt_Left || Btn == bt_Cancel)
                         CurrScreen = st_PumpSettings;
+                    if(Btn == bt_OK)
+                    {
+                        CurrScreen = st_Pump2SetUp;
+                        SetPumpConfig = pcs_Periodic;
+                        wPumpSetup.Flush();
+                    }
+                    break;
+
+                case st_Pump1SetUp:
+                    if(Btn == bt_Cancel)
+                        CurrScreen = st_Pump1Settings;
+                    if(Btn == bt_OK)
+                    {
+                        if(SetPumpConfig == pcs_Periodic)
+                            SetPumpConfig = pcs_Duration;
+                        else
+                        {
+                            wPumpSetup.wpumpNum = (WPUMP_1 + 1);
+                            wPump1_Conf = wPumpSetup;
+                            EE.WriteConf(GET_EEPROM_ADDR(WPUMP_1), (uint32_t*)&wPump1_Conf);
+                            CurrScreen = st_Pump1Settings;
+                        }
+                    }
+                    if(Btn == bt_Up)
+                    {
+                        if(SetPumpConfig == pcs_Periodic)
+                            wPumpSetup.everyH++;
+                        else
+                            wPumpSetup.durationS++;
+                    }
+                    if(Btn == bt_Down)
+                    {
+                        if(SetPumpConfig == pcs_Periodic)
+                            wPumpSetup.everyH--;
+                        else
+                            wPumpSetup.durationS--;
+                    }
+                    break;
+
+                case st_Pump2SetUp:
+                    if(Btn == bt_Cancel)
+                        CurrScreen = st_Pump2Settings;
+                    if(Btn == bt_OK)
+                    {
+                        if(SetPumpConfig == pcs_Periodic)
+                            SetPumpConfig = pcs_Duration;
+                        else
+                        {
+                            wPumpSetup.wpumpNum = (WPUMP_2 + 1);
+                            wPump2_Conf = wPumpSetup;
+                            EE.WriteConf(GET_EEPROM_ADDR(WPUMP_2), (uint32_t*)&wPump2_Conf);
+                            CurrScreen = st_Pump2Settings;
+                        }
+                    }
+                    if(Btn == bt_Up)
+                    {
+                        if(SetPumpConfig == pcs_Periodic)
+                            wPumpSetup.everyH++;
+                        else
+                            wPumpSetup.durationS++;
+                    }
+                    if(Btn == bt_Down)
+                    {
+                        if(SetPumpConfig == pcs_Periodic)
+                            wPumpSetup.everyH--;
+                        else
+                            wPumpSetup.durationS--;
+                    }
                     break;
             }
         }
@@ -196,15 +289,15 @@ void App_t::DrawScreen()
 
         case st_TimeSettings:
             Lcd.Cls();
-            Lcd.Printf(0, 0, "TIME  SETTINGS");
-            Lcd.Printf(0, 4, "%c,%c,%c,%c to set", 0x18, 0x19, 0x1A, 0x1B);
-            Lcd.Printf(0, 5, "OK - SAVE");
+            Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "TIME  SETTINGS");
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_1Y, "%c,%c,%c,%c to set", 0x18, 0x19, 0x1A, 0x1B);
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
             Clock.DisplayForSetting(SetUpTime, SetHours);
             break;
 
         case st_PumpSettings:
             Lcd.Cls();
-            Lcd.Printf(0, 0, "PUMP  SETTINGS");
+            Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "PUMP  SETTINGS");
             Lcd.Printf(APP_MENU_POSITION, APP_PUMP1_POSITIONS, "PUMP1");
             Lcd.Printf(APP_MENU_POSITION, APP_PUMP2_POSITIONS, "PUMP2");
             Lcd.Printf(PointerX, PointerY, "%c", 0x10);
@@ -212,20 +305,47 @@ void App_t::DrawScreen()
 
         case st_Pump1Settings:
             Lcd.Cls();
-            Lcd.Printf(0, 0, "PUMP1 SET UP");
-            Lcd.Printf(0, 1, "every: %uh", 48);
-            Lcd.Printf(0, 2, "duration: %us", 8);
-            Lcd.Printf(0, 4, "setup: OK");
-            Lcd.Printf(0, 5, "back: CANCEL");
+            DrawPumpInfo(WPUMP_1);
             break;
 
         case st_Pump2Settings:
             Lcd.Cls();
-            Lcd.Printf(0, 0, "PUMP2 SET UP");
-            Lcd.Printf(0, 1, "every: %uh", 10);
-            Lcd.Printf(0, 2, "duration: %us", 3);
-            Lcd.Printf(0, 4, "setup: OK");
-            Lcd.Printf(0, 5, "back: CANCEL");
+            DrawPumpInfo(WPUMP_2);
+            break;
+
+        case st_Pump1SetUp:
+            Lcd.Cls();
+            Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "SET UP PUMP1");
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_1Y, "%c,%c to set", 0x18, 0x19);
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
+
+            if(SetPumpConfig == pcs_Periodic)
+                Lcd.Printf(0, 2, "every: %uh", wPumpSetup.everyH);
+            else
+                Lcd.Printf(0, 2, "duration: %us", wPumpSetup.durationS);
+            break;
+
+        case st_Pump2SetUp:
+            Lcd.Cls();
+            Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "SET UP PUMP2");
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_1Y, "%c,%c to set", 0x18, 0x19);
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
+
+            if(SetPumpConfig == pcs_Periodic)
+                Lcd.Printf(0, 2, "every: %uh", wPumpSetup.everyH);
+            else
+                Lcd.Printf(0, 2, "duration: %us", wPumpSetup.durationS);
             break;
     }
+}
+
+void App_t::DrawPumpInfo(uint8_t PumpNum)
+{
+    water_pump_conf_t *p = (PumpNum == WPUMP_1)? &wPump1_Conf : &wPump2_Conf;
+    Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "PUMP%u SET UP", p->wpumpNum);
+    Lcd.Printf(0, 1, "every: %uh", p->everyH);
+    Lcd.Printf(0, 2, "duration: %us", p->durationS);
+    Lcd.Printf(0, 3, "on's: %u", p->powerCounter);
+    Lcd.Printf(0, 4, "setup: OK");
+    Lcd.Printf(0, 5, "back: CANCEL");
 }
