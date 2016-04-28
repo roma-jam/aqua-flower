@@ -37,6 +37,10 @@
 #define APP_PUMP1_POSITIONS                 2
 #define APP_PUMP2_POSITIONS                 3
 
+#define APP_LINE_1_POSITION                 1
+#define APP_LINE_2_POSITION                 2
+#define APP_LINE_3_POSITION                 3
+
 #define LCD_DEFAULT_BACKLIGTH_MS            4999
 
 // ================================ DEBUG  =====================================

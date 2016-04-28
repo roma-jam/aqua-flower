@@ -320,9 +320,9 @@ void App_t::DrawScreen()
             Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
 
             if(SetPumpConfig == pcs_Periodic)
-                Lcd.Printf(0, 2, "every: %uh", wPumpSetup.everyH);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "every: %uh", wPumpSetup.everyH);
             else
-                Lcd.Printf(0, 2, "duration: %us", wPumpSetup.durationS);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", wPumpSetup.durationS);
             break;
 
         case st_Pump2SetUp:
@@ -332,9 +332,9 @@ void App_t::DrawScreen()
             Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
 
             if(SetPumpConfig == pcs_Periodic)
-                Lcd.Printf(0, 2, "every: %uh", wPumpSetup.everyH);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "every: %uh", wPumpSetup.everyH);
             else
-                Lcd.Printf(0, 2, "duration: %us", wPumpSetup.durationS);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", wPumpSetup.durationS);
             break;
     }
 }
@@ -343,9 +343,10 @@ void App_t::DrawPumpInfo(uint8_t PumpNum)
 {
     water_pump_conf_t *p = (PumpNum == WPUMP_1)? &wPump1_Conf : &wPump2_Conf;
     Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "PUMP%u SET UP", p->wpumpNum);
-    Lcd.Printf(0, 1, "every: %uh", p->everyH);
-    Lcd.Printf(0, 2, "duration: %us", p->durationS);
-    Lcd.Printf(0, 3, "on's: %u", p->powerCounter);
-    Lcd.Printf(0, 4, "setup: OK");
-    Lcd.Printf(0, 5, "back: CANCEL");
+    Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_1Y, "setup: OK");
+    Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "back: CANCEL");
+
+    Lcd.Printf(0, APP_LINE_1_POSITION, "every: %uh", p->everyH);
+    Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", p->durationS);
+    Lcd.Printf(0, APP_LINE_3_POSITION, "on's: %u", p->powerCounter);
 }
