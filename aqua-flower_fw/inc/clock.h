@@ -50,7 +50,8 @@ struct time_t {
 class clock_t
 {
 private:
-    void ClearIRQ() { RTC->CRL &= ~RTC_CRL_SECF; }
+    void ClearSecIRQ()      { RTC->CRL &= ~RTC_CRL_SECF; }
+    void ClearAlarmIRQ()    { RTC->CRL &= ~RTC_CRL_ALRF; }
     void EnterConfMode()
     {
         while(!(RTC->CRL & RTC_CRL_RTOFF)); // Wait RTOFF

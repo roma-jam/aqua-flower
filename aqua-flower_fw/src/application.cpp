@@ -37,11 +37,13 @@ void App_t::Task()
     if(EvtMsk & EVTMSK_SEC_UPDATE)
     {
         if(CurrScreen == st_ScreenSaver)
-        {
             Clock.Toggle();
-            if(Clock.CurrentTime.Update())
-                Clock.Display();
-        }
+    }
+
+    if(EvtMsk & EVTMSK_MIN_UPDATE)
+    {
+        if(CurrScreen == st_ScreenSaver)
+            Clock.Display();
     }
 
     if(EvtMsk & EVTMSK_BUTTON_UPDATE)

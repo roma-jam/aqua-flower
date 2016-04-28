@@ -20,8 +20,6 @@
 
 #include "clock_digits.h"
 
-wpump_t WaterPump;
-
 static inline void Init();
 
 int main(void)
@@ -56,7 +54,7 @@ void Init()
     WaterPump.Init();
 
 //    EE.ReadConf();
-    Buzzer.BeepBeep();
+//    Buzzer.BeepBeep();
 }
 
 

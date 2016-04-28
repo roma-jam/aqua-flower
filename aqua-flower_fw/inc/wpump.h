@@ -13,20 +13,23 @@
 
 #define WPUMP_GPIO      GPIOA
 
-#define WPUMP_0         0
-#define WPUMP_1         1
+#define WPUMP_1         0
+#define WPUMP_2         1
 
 class wpump_t {
 private:
+    VirtualTimer TimerPump1, TimerPump2;
     void InitGpios() {
-        PinSetupOut(WPUMP_GPIO, WPUMP_0, omPushPull, ps50MHz);
         PinSetupOut(WPUMP_GPIO, WPUMP_1, omPushPull, ps50MHz);
-        PinClear(WPUMP_GPIO, WPUMP_0);
+        PinSetupOut(WPUMP_GPIO, WPUMP_2, omPushPull, ps50MHz);
         PinClear(WPUMP_GPIO, WPUMP_1);
+        PinClear(WPUMP_GPIO, WPUMP_2);
     }
-public:
-    void Init() { InitGpios(); Uart.Printf("WPump Enable\r\n");  }
     void Enable(uint8_t WPUMP)  { PinSet(WPUMP_GPIO, WPUMP);     }
+public:
+    void Init() { InitGpios(); }
+    void EnablePump1(uint32_t ms);
+    void EnablePump2(uint32_t ms);
     void Disable(uint8_t WPUMP) { PinClear(WPUMP_GPIO, WPUMP);   }
 };
 

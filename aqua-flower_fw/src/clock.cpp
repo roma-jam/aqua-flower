@@ -80,6 +80,8 @@ void clock_t::DisplayForSetting(time_t Time, bool SetH)
     mLo = Time.minutes;
     mHi = Time.minutes / 10;
 
+    Lcd.DrawDelimeter();
+
     if(SetH)
         Lcd.SetDrawMode(OVERWRITE_INVERTED);
     if(mHi)
@@ -105,14 +107,18 @@ void clock_t::DisplayForSetting(time_t Time, bool SetH)
 
 void clock_t::IrqHandler()
 {
-    ClearIRQ();
+    ClearSecIRQ();
     App.SendEventI(EVTMSK_SEC_UPDATE);
+    if(Clock.CurrentTime.Update())
+        App.SendEventI(EVTMSK_MIN_UPDATE);
 }
 
 void clock_t::AlarmHandler()
 {
-    RTC->CRL &= ~RTC_CRL_ALRF;
+    ClearAlarmIRQ();
+#if (APP_CLOCK_DEBUG)
     Uart.Printf("Alarm!\r\n");
+#endif
 }
 
 extern "C"

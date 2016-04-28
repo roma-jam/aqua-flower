@@ -11,8 +11,8 @@
 
 #include <kl_lib_f100.h>
 #include <string.h>
-#include "application_config.h"
 #include "clock.h"
+#include "config.h"
 
 enum screen_type_t {
     st_ScreenSaver = 0,

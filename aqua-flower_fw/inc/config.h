@@ -21,4 +21,8 @@
 #define LCD_DEFAULT_BACKLIGTH_MS            4999
 
 
+// ================================ DEBUG  =====================================
+#define APP_WATER_PUMP_DEBUG                0
+#define APP_CLOCK_DEBUG                     1
+
 #endif /* APPLICATION_CONFIG_H_ */
