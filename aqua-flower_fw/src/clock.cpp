@@ -61,11 +61,9 @@ void clock_t::Display()
         mLo -= mHi * 10;
 
     if(hHi)
-    {
-        Lcd.DrawClockDigit(0, hHi);
         hLo -= hHi * 10;
-    }
 
+    Lcd.DrawClockDigit(0, hHi);
     Lcd.DrawClockDigit(1, hLo);
     Lcd.DrawClockDigit(2, mHi);
     Lcd.DrawClockDigit(3, mLo);
@@ -82,16 +80,14 @@ void clock_t::DisplayForSetting(time_t Time, bool SetH)
 
     Lcd.DrawDelimeter();
 
-    if(SetH)
-        Lcd.SetDrawMode(OVERWRITE_INVERTED);
     if(mHi)
         mLo -= mHi * 10;
-
     if(hHi)
-    {
-        Lcd.DrawClockDigit(0, hHi);
         hLo -= hHi * 10;
-    }
+
+    if(SetH)
+        Lcd.SetDrawMode(OVERWRITE_INVERTED);
+    Lcd.DrawClockDigit(0, hHi);
     Lcd.DrawClockDigit(1, hLo);
     if(SetH)
         Lcd.SetDrawMode(OVERWRITE);

@@ -9,12 +9,12 @@
 #define INC_WPUMP_H_
 
 #include "kl_lib_f100.h"
-
+#include "config.h"
 
 #define WPUMP_GPIO      GPIOA
 
-#define WPUMP_1         0
-#define WPUMP_2         1
+#define WPUMP_1         1
+#define WPUMP_2         0
 
 
 struct water_pump_conf_t {

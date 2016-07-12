@@ -175,6 +175,17 @@ void App_t::Button()
                             CurrScreen = st_Pump2Settings;
                         }
                     }
+                    if(Btn == bt_Right)
+                    {
+                        if(PointerY == APP_PUMP1_POSITIONS)
+                        {
+                            WaterPump.EnablePump1(wPump1_Conf.durationS * 1000);
+                        }
+                        else if (PointerY == APP_PUMP2_POSITIONS)
+                        {
+                            WaterPump.EnablePump2(wPump2_Conf.durationS * 1000);
+                        }
+                    }
                     break;
                 }
 
@@ -300,6 +311,7 @@ void App_t::DrawScreen()
             Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "PUMP  SETTINGS");
             Lcd.Printf(APP_MENU_POSITION, APP_PUMP1_POSITIONS, "PUMP1");
             Lcd.Printf(APP_MENU_POSITION, APP_PUMP2_POSITIONS, "PUMP2");
+            Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "%c - test pump", 0x1A);
             Lcd.Printf(PointerX, PointerY, "%c", 0x10);
             break;
 

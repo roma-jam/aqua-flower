@@ -55,7 +55,7 @@ void Init()
     Buttons.Init();
     WaterPump.Init();
 
-//    Buzzer.BeepBeep();
+    Buzzer.BeepBeep();
 }
 
 
