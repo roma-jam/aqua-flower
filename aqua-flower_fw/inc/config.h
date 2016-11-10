@@ -45,8 +45,8 @@
 
 // ================================ DEBUG  =====================================
 
-#define APP_WATER_PUMP_DEBUG                1
-#define APP_CLOCK_DEBUG                     1
+#define APP_WATER_PUMP_DEBUG                0
+#define APP_CLOCK_DEBUG                     0
 #define APP_EEPROM_DEBUG                    1
 
 #endif /* APPLICATION_CONFIG_H_ */

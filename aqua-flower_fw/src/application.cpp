@@ -27,7 +27,8 @@ static void AppThread(void *arg)
         App.Task();
 }
 
-void AppScreenSaverTimeout(void *p) {
+void AppScreenSaverTimeout(void *p)
+{
     chSysLockFromIsr();
     App.ScreenSaver();
     chSysUnlockFromIsr();
@@ -47,12 +48,20 @@ void App_t::Task()
     {
         if(CurrScreen == st_ScreenSaver)
             Clock.Display();
+        if(Clock.CurrentTime.minutes == 0)
+        {
+            if(Clock.CurrentTime.hours == wPump1_Conf.everyH)
+            {
+                Buzzer.BeepBeep();
+                WaterPump.EnablePump1(wPump1_Conf.durationS * 1000);
+            }
+//            if(Clock.CurrentTime.hours == wPump2_Conf.everyH)
+//                WaterPump.EnablePump2(wPump2_Conf.durationS);
+        }
     }
 
     if(EvtMsk & EVTMSK_BUTTON_UPDATE)
         Button();
-
-
     DrawScreen();
 }
 

@@ -45,8 +45,6 @@ private:
     pump_config_step_t  SetPumpConfig;
     water_pump_conf_t   wPumpSetup;
 
-    // WPump
-    water_pump_conf_t wPump1_Conf, wPump2_Conf;
 
     void Button();
     void DrawScreen();
@@ -58,6 +56,9 @@ private:
     }
 
 public:
+    // WPump
+    water_pump_conf_t wPump1_Conf, wPump2_Conf;
+
     Thread *PThd;
     void Init();
     void Task();
