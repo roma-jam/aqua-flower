@@ -100,13 +100,27 @@ void clock_t::DisplayForSetting(time_t Time, bool SetH)
         Lcd.SetDrawMode(OVERWRITE);
 }
 
+void time_t::tick()
+{
+    App.SendEventI(EVTMSK_SEC_UPDATE);
+    if(seconds++ >= SEC_PER_MIN)
+    {
+        seconds = 0;
+        if(minutes++ >= MIN_PER_HOUR)
+        {
+            minutes = 0;
+            if(hours++ >= HOUR_PER_DAY)
+                hours = 0;
+            App.SendEventI(EVTMSK_HOUR_UPDATE);
+        }
+//        App.SendEventI(EVTMSK_MIN_UPDATE);
+    }
+}
 
 void clock_t::IrqHandler()
 {
     ClearSecIRQ();
-    App.SendEventI(EVTMSK_SEC_UPDATE);
-    if(Clock.CurrentTime.Update())
-        App.SendEventI(EVTMSK_MIN_UPDATE);
+    Clock.CurrentTime.tick();
 //    Uart.Printf("%u:%u:%u\r\n", Clock.CurrentTime.hours, Clock.CurrentTime.minutes, Clock.CurrentTime.seconds);
 }
 

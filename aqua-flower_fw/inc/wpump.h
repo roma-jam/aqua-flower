@@ -11,12 +11,7 @@
 #include "kl_lib_f100.h"
 #include "config.h"
 
-#define WPUMP_GPIO      GPIOA
-
-#define WPUMP_1         1
-#define WPUMP_2         0
-
-
+#pragma pack(push, 1)
 struct water_pump_conf_t {
     uint8_t wpumpNum;
     uint8_t everyH;
@@ -29,16 +24,17 @@ struct water_pump_conf_t {
         durationS       = wPumpCfg.durationS;
         powerCounter    = wPumpCfg.powerCounter;
     }
-} __attribute__ ((__packed__));
+};
+#pragma pack(pop)
 
 class wpump_t {
 private:
     VirtualTimer TimerPump1, TimerPump2;
     void InitGpios() {
-        PinSetupOut(WPUMP_GPIO, WPUMP_1, omPushPull, ps50MHz);
-        PinSetupOut(WPUMP_GPIO, WPUMP_2, omPushPull, ps50MHz);
-        PinClear(WPUMP_GPIO, WPUMP_1);
-        PinClear(WPUMP_GPIO, WPUMP_2);
+        PinSetupOut(WPUMP_GPIO, WPUMP1, omPushPull, ps50MHz);
+        PinSetupOut(WPUMP_GPIO, WPUMP2, omPushPull, ps50MHz);
+        PinClear(WPUMP_GPIO, WPUMP1);
+        PinClear(WPUMP_GPIO, WPUMP2);
     }
     void Enable(uint8_t WPUMP)  { PinSet(WPUMP_GPIO, WPUMP);     }
 public:

@@ -17,7 +17,7 @@ void Pump1Tmr(void *p)
 #if (APP_WATER_PUMP_DEBUG)
     Uart.Printf("D1\r\n");
 #endif
-    WaterPump.Disable(WPUMP_1);
+    WaterPump.Disable(WPUMP1);
     chSysUnlockFromIsr();
 }
 
@@ -27,7 +27,7 @@ void Pump2Tmr(void *p)
 #if (APP_WATER_PUMP_DEBUG)
     Uart.Printf("D2\r\n");
 #endif
-    WaterPump.Disable(WPUMP_2);
+    WaterPump.Disable(WPUMP2);
     chSysUnlockFromIsr();
 }
 
@@ -36,7 +36,7 @@ void wpump_t::EnablePump1(uint32_t ms)
 #if (APP_WATER_PUMP_DEBUG)
     Uart.Printf("E1\r\n");
 #endif
-    Enable(WPUMP_1);
+    Enable(WPUMP1);
     chVTSet(&TimerPump1, MS2ST(ms), Pump1Tmr, nullptr);
 }
 
@@ -45,7 +45,7 @@ void wpump_t::EnablePump2(uint32_t ms)
 #if (APP_WATER_PUMP_DEBUG)
     Uart.Printf("E2\r\n");
 #endif
-    Enable(WPUMP_2);
+    Enable(WPUMP2);
     chVTSet(&TimerPump2, MS2ST(ms), Pump2Tmr, nullptr);
 }
 

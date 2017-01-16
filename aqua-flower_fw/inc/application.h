@@ -43,7 +43,7 @@ private:
     time_t              SetUpTime;
     bool                SetHours;
     pump_config_step_t  SetPumpConfig;
-    water_pump_conf_t   wPumpSetup;
+    water_pump_conf_t   pump_setup;
 
 
     void Button();
@@ -57,7 +57,8 @@ private:
 
 public:
     // WPump
-    water_pump_conf_t wPump1_Conf, wPump2_Conf;
+    water_pump_conf_t pump_conf[WPUMP_COUNT];
+    uint32_t hours[WPUMP_COUNT];
 
     Thread *PThd;
     void Init();

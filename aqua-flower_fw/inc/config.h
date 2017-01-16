@@ -40,8 +40,17 @@
 #define APP_LINE_1_POSITION                 1
 #define APP_LINE_2_POSITION                 2
 #define APP_LINE_3_POSITION                 3
+#define APP_LINE_4_POSITION                 4
 
 #define LCD_DEFAULT_BACKLIGTH_MS            4999
+// ============================== WATER PUMP ===================================
+
+#define WPUMP_COUNT     2
+
+#define WPUMP_GPIO      GPIOA
+
+#define WPUMP1          1
+#define WPUMP2          0
 
 // ================================ DEBUG  =====================================
 

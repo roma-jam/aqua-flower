@@ -21,23 +21,8 @@ struct time_t {
     int8_t minutes;
     int8_t seconds;
 
+    void tick();
     void operator = (const time_t Time) { hours = Time.hours; minutes = Time.minutes; seconds = Time.seconds; }
-    bool Update()
-    {
-        if(seconds++ >= SEC_PER_MIN)
-        {
-            seconds = 0;
-            if(minutes++ >= MIN_PER_HOUR)
-            {
-                minutes = 0;
-                if(hours++ >= HOUR_PER_DAY)
-                    hours = 0;
-                return true;
-            }
-            return true;
-        }
-        return false;
-    }
     void incH() { if(hours++ >= HOUR_PER_DAY) hours = 0;     }
     void incM() { if(minutes++ >= MIN_PER_HOUR) minutes = 0; }
     void decH() { if(hours-- <= 0) hours = HOUR_PER_DAY;      }

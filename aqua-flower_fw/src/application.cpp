@@ -48,15 +48,25 @@ void App_t::Task()
     {
         if(CurrScreen == st_ScreenSaver)
             Clock.Display();
-        if(Clock.CurrentTime.minutes == 0)
+    }
+
+    if(EvtMsk & EVTMSK_HOUR_UPDATE)
+    {
+        if(hours[WPUMP1]++ == pump_conf[WPUMP1].everyH)
         {
-            if(Clock.CurrentTime.hours == wPump1_Conf.everyH)
-            {
-                Buzzer.BeepBeep();
-                WaterPump.EnablePump1(wPump1_Conf.durationS * 1000);
-            }
-//            if(Clock.CurrentTime.hours == wPump2_Conf.everyH)
-//                WaterPump.EnablePump2(wPump2_Conf.durationS);
+            Buzzer.Beep();
+            WaterPump.EnablePump1(pump_conf[WPUMP1].durationS * 1000);
+            pump_conf[WPUMP1].powerCounter++;
+            hours[WPUMP1] = 0;
+            EE.WriteConf(GET_EEPROM_ADDR(WPUMP1), (uint32_t*)&pump_conf[WPUMP1]);
+        }
+        if(hours[WPUMP2]++ == pump_conf[WPUMP2].everyH)
+        {
+            Buzzer.BeepBeep();
+            WaterPump.EnablePump2(pump_conf[WPUMP2].durationS * 1000);
+            pump_conf[WPUMP2].powerCounter++;
+            hours[WPUMP2] = 0;
+            EE.WriteConf(GET_EEPROM_ADDR(WPUMP2), (uint32_t*)&pump_conf[WPUMP2]);
         }
     }
 
@@ -69,8 +79,10 @@ void App_t::Init()
 {
     PThd = chThdCreateStatic(waAppThread, sizeof(waAppThread), NORMALPRIO, (tfunc_t)AppThread, NULL);
     SSTimerStart();
-    wPump1_Conf.Flush();
-    wPump2_Conf.Flush();
+    pump_conf[WPUMP1].Flush();
+    hours[WPUMP1] = 0;
+    pump_conf[WPUMP2].Flush();
+    hours[WPUMP2] = 0;
 
     if(!EE.isInit())
     {
@@ -78,8 +90,8 @@ void App_t::Init()
         return;
     }
 
-    EE.ReadConf(GET_EEPROM_ADDR(WPUMP_1), (uint32_t*)&wPump1_Conf);
-    EE.ReadConf(GET_EEPROM_ADDR(WPUMP_2), (uint32_t*)&wPump2_Conf);
+    EE.ReadConf(GET_EEPROM_ADDR(WPUMP1), (uint32_t*)&pump_conf[WPUMP1]);
+    EE.ReadConf(GET_EEPROM_ADDR(WPUMP2), (uint32_t*)&pump_conf[WPUMP2]);
 }
 
 
@@ -188,11 +200,11 @@ void App_t::Button()
                     {
                         if(PointerY == APP_PUMP1_POSITIONS)
                         {
-                            WaterPump.EnablePump1(wPump1_Conf.durationS * 1000);
+                            WaterPump.EnablePump1(pump_conf[WPUMP1].durationS * 1000);
                         }
                         else if (PointerY == APP_PUMP2_POSITIONS)
                         {
-                            WaterPump.EnablePump2(wPump2_Conf.durationS * 1000);
+                            WaterPump.EnablePump2(pump_conf[WPUMP2].durationS * 1000);
                         }
                     }
                     break;
@@ -205,7 +217,7 @@ void App_t::Button()
                     {
                         CurrScreen = st_Pump1SetUp;
                         SetPumpConfig = pcs_Periodic;
-                        wPumpSetup.Flush();
+                        pump_setup.Flush();
                     }
                     break;
 
@@ -216,7 +228,7 @@ void App_t::Button()
                     {
                         CurrScreen = st_Pump2SetUp;
                         SetPumpConfig = pcs_Periodic;
-                        wPumpSetup.Flush();
+                        pump_setup.Flush();
                     }
                     break;
 
@@ -229,25 +241,25 @@ void App_t::Button()
                             SetPumpConfig = pcs_Duration;
                         else
                         {
-                            wPumpSetup.wpumpNum = (WPUMP_1 + 1);
-                            wPump1_Conf = wPumpSetup;
-                            EE.WriteConf(GET_EEPROM_ADDR(WPUMP_1), (uint32_t*)&wPump1_Conf);
+                            pump_setup.wpumpNum = (WPUMP1 + 1);
+                            pump_conf[WPUMP1] = pump_setup;
+                            EE.WriteConf(GET_EEPROM_ADDR(WPUMP1), (uint32_t*)&pump_conf[WPUMP1]);
                             CurrScreen = st_Pump1Settings;
                         }
                     }
                     if(Btn == bt_Up)
                     {
                         if(SetPumpConfig == pcs_Periodic)
-                            wPumpSetup.everyH++;
+                            pump_setup.everyH++;
                         else
-                            wPumpSetup.durationS++;
+                            pump_setup.durationS++;
                     }
                     if(Btn == bt_Down)
                     {
                         if(SetPumpConfig == pcs_Periodic)
-                            wPumpSetup.everyH--;
+                            pump_setup.everyH--;
                         else
-                            wPumpSetup.durationS--;
+                            pump_setup.durationS--;
                     }
                     break;
 
@@ -260,25 +272,25 @@ void App_t::Button()
                             SetPumpConfig = pcs_Duration;
                         else
                         {
-                            wPumpSetup.wpumpNum = (WPUMP_2 + 1);
-                            wPump2_Conf = wPumpSetup;
-                            EE.WriteConf(GET_EEPROM_ADDR(WPUMP_2), (uint32_t*)&wPump2_Conf);
+                            pump_setup.wpumpNum = (WPUMP2 + 1);
+                            pump_conf[WPUMP2] = pump_setup;
+                            EE.WriteConf(GET_EEPROM_ADDR(WPUMP2), (uint32_t*)&pump_conf[WPUMP2]);
                             CurrScreen = st_Pump2Settings;
                         }
                     }
                     if(Btn == bt_Up)
                     {
                         if(SetPumpConfig == pcs_Periodic)
-                            wPumpSetup.everyH++;
+                            pump_setup.everyH++;
                         else
-                            wPumpSetup.durationS++;
+                            pump_setup.durationS++;
                     }
                     if(Btn == bt_Down)
                     {
                         if(SetPumpConfig == pcs_Periodic)
-                            wPumpSetup.everyH--;
+                            pump_setup.everyH--;
                         else
-                            wPumpSetup.durationS--;
+                            pump_setup.durationS--;
                     }
                     break;
             }
@@ -326,12 +338,12 @@ void App_t::DrawScreen()
 
         case st_Pump1Settings:
             Lcd.Cls();
-            DrawPumpInfo(WPUMP_1);
+            DrawPumpInfo(WPUMP1);
             break;
 
         case st_Pump2Settings:
             Lcd.Cls();
-            DrawPumpInfo(WPUMP_2);
+            DrawPumpInfo(WPUMP2);
             break;
 
         case st_Pump1SetUp:
@@ -341,9 +353,9 @@ void App_t::DrawScreen()
             Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
 
             if(SetPumpConfig == pcs_Periodic)
-                Lcd.Printf(0, APP_LINE_2_POSITION, "every: %uh", wPumpSetup.everyH);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "every: %uh", pump_setup.everyH);
             else
-                Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", wPumpSetup.durationS);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", pump_setup.durationS);
             break;
 
         case st_Pump2SetUp:
@@ -353,21 +365,20 @@ void App_t::DrawScreen()
             Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK - SAVE");
 
             if(SetPumpConfig == pcs_Periodic)
-                Lcd.Printf(0, APP_LINE_2_POSITION, "every: %uh", wPumpSetup.everyH);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "every: %uh", pump_setup.everyH);
             else
-                Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", wPumpSetup.durationS);
+                Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", pump_setup.durationS);
             break;
     }
 }
 
 void App_t::DrawPumpInfo(uint8_t PumpNum)
 {
-    water_pump_conf_t *p = (PumpNum == WPUMP_1)? &wPump1_Conf : &wPump2_Conf;
+    water_pump_conf_t *p = (PumpNum == WPUMP1)? &pump_conf[WPUMP1] : &pump_conf[WPUMP2];
     Lcd.Printf(APP_HEADER_POSITION_X, APP_HEADER_POSITION_Y, "PUMP%u SET UP", p->wpumpNum);
-    Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_1Y, "setup: OK");
-    Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "back: CANCEL");
+    Lcd.Printf(APP_BOTTOM_POSITION_X, APP_BOTTOM_POSITION_2Y, "OK/CANCEL");
 
     Lcd.Printf(0, APP_LINE_1_POSITION, "every: %uh", p->everyH);
     Lcd.Printf(0, APP_LINE_2_POSITION, "duration: %us", p->durationS);
-    Lcd.Printf(0, APP_LINE_3_POSITION, "on's: %u", p->powerCounter);
+    Lcd.Printf(0, APP_LINE_3_POSITION, "powered: %u", p->powerCounter);
 }
